@@ -140,6 +140,7 @@
     <None Include="ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md" />
     <None Include="ISSUER_KEY_EXTRACTION_DOCUMENTATION.md" />
     <None Include="LOGGING_DOCUMENTATION.md" />
+    <None Include="PAN_MASKING_FEATURE.md" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

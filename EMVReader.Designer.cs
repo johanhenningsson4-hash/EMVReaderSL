@@ -51,6 +51,7 @@ namespace EMVCard
             this.textIccCert = new System.Windows.Forms.TextBox();
             this.txtSLToken = new System.Windows.Forms.TextBox();
             this.lblSLToken = new System.Windows.Forms.Label();
+            this.chkMaskPAN = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // Label1
@@ -284,11 +285,23 @@ namespace EMVCard
             this.lblSLToken.TabIndex = 39;
             this.lblSLToken.Text = "SL Token";
             // 
+            // chkMaskPAN
+            // 
+            this.chkMaskPAN.AutoSize = true;
+            this.chkMaskPAN.Location = new System.Drawing.Point(13, 263);
+            this.chkMaskPAN.Name = "chkMaskPAN";
+            this.chkMaskPAN.Size = new System.Drawing.Size(115, 24);
+            this.chkMaskPAN.TabIndex = 40;
+            this.chkMaskPAN.Text = "Mask PAN";
+            this.chkMaskPAN.UseVisualStyleBackColor = true;
+            this.chkMaskPAN.CheckedChanged += new System.EventHandler(this.chkMaskPAN_CheckedChanged);
+            // 
             // MainEMVReaderBin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(766, 634);
+            this.Controls.Add(this.chkMaskPAN);
             this.Controls.Add(this.lblSLToken);
             this.Controls.Add(this.txtSLToken);
             this.Controls.Add(this.textIccCert);
@@ -351,6 +364,7 @@ namespace EMVCard
         private System.Windows.Forms.TextBox textIccCert;
         private System.Windows.Forms.TextBox txtSLToken;
         private System.Windows.Forms.Label lblSLToken;
+        private System.Windows.Forms.CheckBox chkMaskPAN;
     }
 }
 

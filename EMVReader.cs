@@ -39,6 +39,9 @@ namespace EMVCard
         private List<EmvApplicationSelector.ApplicationInfo> _applications;
         private Dictionary<string, EmvApplicationSelector.ApplicationInfo> _appDisplayNameToInfo;
 
+        // Configuration
+        private bool _maskPAN = false;
+
         public MainEMVReaderBin() {
             InitializeComponent();
             InitializeEmvComponents();
@@ -232,7 +235,16 @@ namespace EMVCard
         /// </summary>
         private void UpdateUIFromCardData()
         {
-            textCardNum.Text = _currentCardData.PAN ?? "";
+            // Apply PAN masking if enabled
+            if (_maskPAN && !string.IsNullOrEmpty(_currentCardData.PAN))
+            {
+                textCardNum.Text = Util.MaskPAN(_currentCardData.PAN);
+            }
+            else
+            {
+                textCardNum.Text = _currentCardData.PAN ?? "";
+            }
+            
             textEXP.Text = _currentCardData.ExpiryDate ?? "";
             textHolder.Text = _currentCardData.CardholderName ?? "";
             textTrack.Text = _currentCardData.Track2Data ?? "";
@@ -318,6 +330,29 @@ namespace EMVCard
             _cardReader?.Disconnect();
             _cardReader?.Release();
             System.Environment.Exit(0);
+        }
+
+        /// <summary>
+        /// Handle PAN masking checkbox change event.
+        /// </summary>
+        private void chkMaskPAN_CheckedChanged(object sender, EventArgs e)
+        {
+            _maskPAN = chkMaskPAN.Checked;
+            
+            // Re-display the PAN with new masking setting if card data exists
+            if (!string.IsNullOrEmpty(_currentCardData.PAN))
+            {
+                if (_maskPAN)
+                {
+                    textCardNum.Text = Util.MaskPAN(_currentCardData.PAN);
+                    displayOut(0, 0, "PAN masking enabled");
+                }
+                else
+                {
+                    textCardNum.Text = _currentCardData.PAN;
+                    displayOut(0, 0, "PAN masking disabled - showing full card number");
+                }
+            }
         }
     }
 }
