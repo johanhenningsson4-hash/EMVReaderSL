@@ -37,6 +37,7 @@ namespace EMVCard
         
         // Application list
         private List<EmvApplicationSelector.ApplicationInfo> _applications;
+        private Dictionary<string, EmvApplicationSelector.ApplicationInfo> _appDisplayNameToInfo;
 
         public MainEMVReaderBin() {
             InitializeComponent();
@@ -51,6 +52,7 @@ namespace EMVCard
             _cardReader = new EmvCardReader();
             _dataParser = new EmvDataParser();
             _currentCardData = new EmvDataParser.EmvCardData();
+            _appDisplayNameToInfo = new Dictionary<string, EmvApplicationSelector.ApplicationInfo>();
             
             // Wire up logging events
             _cardReader.LogMessage += (s, msg) => displayOut(0, 0, msg);
@@ -67,6 +69,7 @@ namespace EMVCard
             txtSLToken.Text = "";
             cbPSE.Items.Clear();
             cbPSE.Text = "";
+            _appDisplayNameToInfo?.Clear();
         }
 
         private void displayOut(int errType, int retVal, string PrintText) {
@@ -128,15 +131,23 @@ namespace EMVCard
         }
 
         private void bReadApp_Click(object sender, EventArgs e) {
-            ClearBuffers();
-
-            if (cbPSE.SelectedIndex < 0 || cbPSE.SelectedIndex >= _applications.Count)
+            // Check if an application is selected BEFORE clearing buffers
+            if (string.IsNullOrEmpty(cbPSE.Text) || !_appDisplayNameToInfo.ContainsKey(cbPSE.Text))
             {
                 displayOut(0, 0, "Please select an application");
                 return;
             }
 
-            var selectedApp = _applications[cbPSE.SelectedIndex];
+            var selectedApp = _appDisplayNameToInfo[cbPSE.Text];
+            
+            // Now clear only the card data fields (not the application selection)
+            _currentCardData.Clear();
+            textCardNum.Text = "";
+            textEXP.Text = "";
+            textHolder.Text = "";
+            textTrack.Text = "";
+            textIccCert.Text = "";
+            txtSLToken.Text = "";
             
             // Select application
             if (!_appSelector.SelectApplication(selectedApp.AID, out byte[] fciData))
@@ -238,13 +249,16 @@ namespace EMVCard
 
             _applications = _appSelector.LoadPSE();
             
-            // Populate dropdown
+            // Populate dropdown and dictionary
             cbPSE.Items.Clear();
+            _appDisplayNameToInfo.Clear();
+            
             for (int i = 0; i < _applications.Count; i++)
             {
                 var app = _applications[i];
                 string itemName = $"{i + 1}. {app.DisplayName}";
                 cbPSE.Items.Add(itemName);
+                _appDisplayNameToInfo[itemName] = app;
             }
 
             if (cbPSE.Items.Count > 0)
@@ -264,13 +278,16 @@ namespace EMVCard
 
             _applications = _appSelector.LoadPPSE();
             
-            // Populate dropdown
+            // Populate dropdown and dictionary
             cbPSE.Items.Clear();
+            _appDisplayNameToInfo.Clear();
+            
             for (int i = 0; i < _applications.Count; i++)
             {
                 var app = _applications[i];
                 string itemName = $"{i + 1}. {app.DisplayName}";
                 cbPSE.Items.Add(itemName);
+                _appDisplayNameToInfo[itemName] = app;
             }
 
             if (cbPSE.Items.Count > 0)

@@ -118,16 +118,16 @@ namespace EMVCard
                     IccPublicKeyRemainder = remainder
                 };
 
-                string token = slCard.GetSLToken();
+                string token = slCard.GetSLToken2(); // Use GetSLToken2() for space-separated format
 
                 if (string.IsNullOrEmpty(token))
                 {
-                    OnLogMessage("Failed to generate SL Token - GetSLToken returned empty");
+                    OnLogMessage("Failed to generate SL Token - GetSLToken2 returned empty");
                     return TokenResult.CreateError("Failed to generate SL Token");
                 }
 
                 OnLogMessage($"Loaded ICC certificate ({certificate.Length} bytes) for token generation");
-                OnLogMessage($"SL Token generated successfully: {token.Substring(0, Math.Min(16, token.Length))}...");
+                OnLogMessage($"SL Token generated successfully: {token.Substring(0, Math.Min(23, token.Length))}...");
 
                 _traceSource.TraceEvent(TraceEventType.Information, 0,
                     $"GenerateToken: Successfully generated token (length={token.Length})");
@@ -165,7 +165,7 @@ namespace EMVCard
                     IccPublicKeyCertificate = certificate
                 };
 
-                string token = slCard.GetSLToken();
+                string token = slCard.GetSLToken2(); // Use GetSLToken2() for space-separated format
 
                 if (string.IsNullOrEmpty(token))
                 {

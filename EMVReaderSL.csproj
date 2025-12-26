@@ -135,6 +135,8 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
+    <None Include="CLEARBUFFERS_FIX.md" />
+    <None Include="COMBOBOX_SELECTION_FIX.md" />
     <None Include="ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md" />
     <None Include="ISSUER_KEY_EXTRACTION_DOCUMENTATION.md" />
     <None Include="LOGGING_DOCUMENTATION.md" />
@@ -148,6 +150,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <None Include="REFACTORING_DOCUMENTATION.md" />
+    <None Include="SL_TOKEN_FORMAT_UPDATE.md" />
     <None Include="SL_TOKEN_INTEGRATION_DOCUMENTATION.md" />
   </ItemGroup>
   <ItemGroup>
