@@ -1,0 +1,306 @@
+/*=========================================================================================
+'  Copyright(C):    Johan Henningsson 
+'  
+'  Author :         Johan Henningsson
+'
+'  Module :         EMVReader.cs
+'   
+'  Date   :         June 23, 2008
+'==========================================================================================*/
+
+using NfcReaderLib;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+
+namespace EMVCard
+{
+    public partial class MainEMVReaderBin : Form
+    {
+        // Business logic classes
+        private EmvCardReader _cardReader;
+        private EmvDataParser _dataParser;
+        private EmvRecordReader _recordReader;
+        private EmvApplicationSelector _appSelector;
+        private EmvGpoProcessor _gpoProcessor;
+        private EmvTokenGenerator _tokenGenerator;
+
+        // Current card data
+        private EmvDataParser.EmvCardData _currentCardData;
+        
+        // Application list
+        private List<EmvApplicationSelector.ApplicationInfo> _applications;
+
+        public MainEMVReaderBin() {
+            InitializeComponent();
+            InitializeEmvComponents();
+        }
+
+        /// <summary>
+        /// Initialize EMV business logic components.
+        /// </summary>
+        private void InitializeEmvComponents()
+        {
+            _cardReader = new EmvCardReader();
+            _dataParser = new EmvDataParser();
+            _currentCardData = new EmvDataParser.EmvCardData();
+            
+            // Wire up logging events
+            _cardReader.LogMessage += (s, msg) => displayOut(0, 0, msg);
+            _dataParser.LogMessage += (s, msg) => displayOut(0, 0, msg);
+        }
+
+        private void ClearBuffers() {
+            _currentCardData.Clear();
+            textCardNum.Text = "";
+            textEXP.Text = "";
+            textHolder.Text = "";
+            textTrack.Text = "";
+            textIccCert.Text = "";
+            txtSLToken.Text = "";
+            cbPSE.Items.Clear();
+            cbPSE.Text = "";
+        }
+
+        private void displayOut(int errType, int retVal, string PrintText) {
+            switch (errType) {
+                case 0:
+                    break;
+                case 1:
+                    PrintText = ModWinsCard64.GetScardErrMsg(retVal);
+                    break;
+                case 2:
+                    PrintText = "<" + PrintText;
+                    break;
+                case 3:
+                    PrintText = "> " + PrintText;
+                    break;
+            }
+
+            richTextBoxLogs.Select(richTextBoxLogs.Text.Length, 0);
+            richTextBoxLogs.SelectedText = PrintText + "\r\n";
+            richTextBoxLogs.ScrollToCaret();
+        }
+
+        private void EnableButtons() {
+            bInit.Enabled = false;
+            bConnect.Enabled = true;
+            bReset.Enabled = true;
+            bClear.Enabled = true;
+        }
+
+        private void bInit_Click(object sender, EventArgs e) {
+            var readers = _cardReader.Initialize();
+            
+            if (readers.Count == 0)
+            {
+                displayOut(0, 0, "No card readers found");
+                return;
+            }
+
+            EnableButtons();
+
+            // Populate reader dropdown
+            cbReader.Items.Clear();
+            foreach (var reader in readers)
+            {
+                cbReader.Items.Add(reader);
+            }
+
+            if (cbReader.Items.Count > 0)
+                cbReader.SelectedIndex = 0;
+        }
+
+        private void bConnect_Click(object sender, EventArgs e) {
+            ClearBuffers();
+
+            if (_cardReader.Connect(cbReader.Text))
+            {
+                displayOut(0, 0, $"Successfully connected to {cbReader.Text}");
+            }
+        }
+
+        private void bReadApp_Click(object sender, EventArgs e) {
+            ClearBuffers();
+
+            if (cbPSE.SelectedIndex < 0 || cbPSE.SelectedIndex >= _applications.Count)
+            {
+                displayOut(0, 0, "Please select an application");
+                return;
+            }
+
+            var selectedApp = _applications[cbPSE.SelectedIndex];
+            
+            // Select application
+            if (!_appSelector.SelectApplication(selectedApp.AID, out byte[] fciData))
+            {
+                displayOut(0, 0, "Select AID Failed");
+                return;
+            }
+
+            // Initialize components if needed
+            if (_gpoProcessor == null)
+            {
+                _gpoProcessor = new EmvGpoProcessor(_cardReader);
+                _gpoProcessor.LogMessage += (s, msg) => displayOut(0, 0, msg);
+            }
+
+            if (_recordReader == null)
+            {
+                _recordReader = new EmvRecordReader(_cardReader, _dataParser);
+                _recordReader.LogMessage += (s, msg) => displayOut(0, 0, msg);
+            }
+
+            if (_tokenGenerator == null)
+            {
+                _tokenGenerator = new EmvTokenGenerator();
+                _tokenGenerator.LogMessage += (s, msg) => displayOut(0, 0, msg);
+            }
+
+            // Send GPO
+            bool gpoSuccess = _gpoProcessor.SendGPO(fciData, out byte[] gpoResponse);
+            
+            if (!gpoSuccess)
+            {
+                displayOut(0, 0, "Send GPO Failed - attempting to read common records anyway");
+            }
+
+            if (gpoSuccess)
+            {
+                // Parse GPO response
+                _dataParser.ParseTLV(gpoResponse, 0, gpoResponse.Length - 2, _currentCardData, 0);
+
+                // Parse AFL and read records
+                var aflList = _dataParser.ParseAFL(gpoResponse, gpoResponse.Length);
+                
+                if (aflList.Count > 0)
+                {
+                    _recordReader.ReadAFLRecords(aflList, _currentCardData);
+                }
+                else
+                {
+                    displayOut(0, 0, "Could not parse AFL, attempting to read common records");
+                    _recordReader.TryReadCommonRecords(_currentCardData);
+                }
+            }
+            else
+            {
+                // Try reading common records
+                displayOut(0, 0, "Since GPO failed, attempting to read common records directly");
+                _recordReader.TryReadCommonRecords(_currentCardData);
+            }
+
+            // Extract from Track2 if needed
+            _dataParser.ExtractFromTrack2(_currentCardData);
+
+            // Update UI
+            UpdateUIFromCardData();
+
+            // Generate SL Token
+            var tokenResult = _tokenGenerator.GenerateToken(_currentCardData, _currentCardData.PAN, selectedApp.AID);
+            
+            if (tokenResult.Success)
+            {
+                txtSLToken.Text = tokenResult.Token;
+            }
+            else
+            {
+                txtSLToken.Text = $"Error: {tokenResult.ErrorMessage}";
+            }
+        }
+
+        /// <summary>
+        /// Update UI fields from card data.
+        /// </summary>
+        private void UpdateUIFromCardData()
+        {
+            textCardNum.Text = _currentCardData.PAN ?? "";
+            textEXP.Text = _currentCardData.ExpiryDate ?? "";
+            textHolder.Text = _currentCardData.CardholderName ?? "";
+            textTrack.Text = _currentCardData.Track2Data ?? "";
+            textIccCert.Text = _currentCardData.IccCertificate ?? "";
+        }
+        private void bLoadPSE_Click(object sender, EventArgs e) {
+            ClearBuffers();
+            
+            if (_appSelector == null)
+            {
+                _appSelector = new EmvApplicationSelector(_cardReader);
+                _appSelector.LogMessage += (s, msg) => displayOut(0, 0, msg);
+            }
+
+            _applications = _appSelector.LoadPSE();
+            
+            // Populate dropdown
+            cbPSE.Items.Clear();
+            for (int i = 0; i < _applications.Count; i++)
+            {
+                var app = _applications[i];
+                string itemName = $"{i + 1}. {app.DisplayName}";
+                cbPSE.Items.Add(itemName);
+            }
+
+            if (cbPSE.Items.Count > 0)
+            {
+                cbPSE.SelectedIndex = 0;
+            }
+        }
+
+        private void bLoadPPSE_Click(object sender, EventArgs e) {
+            ClearBuffers();
+            
+            if (_appSelector == null)
+            {
+                _appSelector = new EmvApplicationSelector(_cardReader);
+                _appSelector.LogMessage += (s, msg) => displayOut(0, 0, msg);
+            }
+
+            _applications = _appSelector.LoadPPSE();
+            
+            // Populate dropdown
+            cbPSE.Items.Clear();
+            for (int i = 0; i < _applications.Count; i++)
+            {
+                var app = _applications[i];
+                string itemName = $"{i + 1}. {app.DisplayName}";
+                cbPSE.Items.Add(itemName);
+            }
+
+            if (cbPSE.Items.Count > 0)
+            {
+                cbPSE.SelectedIndex = 0;
+            }
+        }
+
+        private void bClear_Click(object sender, EventArgs e) {
+            richTextBoxLogs.Clear();
+        }
+
+        private void bReset_Click(object sender, EventArgs e) {
+            _cardReader?.Disconnect();
+            _cardReader?.Release();
+            
+            // Reinitialize
+            InitializeEmvComponents();
+            
+            cbReader.Items.Clear();
+            cbReader.Text = "";
+            bInit.Enabled = true;
+            ClearBuffers();
+            richTextBoxLogs.Clear();
+        }
+
+        private void bQuit_Click(object sender, EventArgs e) {
+            _cardReader?.Disconnect();
+            _cardReader?.Release();
+            System.Environment.Exit(0);
+        }
+    }
+}
