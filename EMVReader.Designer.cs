@@ -52,6 +52,13 @@ namespace EMVCard
             this.txtSLToken = new System.Windows.Forms.TextBox();
             this.lblSLToken = new System.Windows.Forms.Label();
             this.chkMaskPAN = new System.Windows.Forms.CheckBox();
+            this.grpPolling = new System.Windows.Forms.GroupBox();
+            this.lblPollCount = new System.Windows.Forms.Label();
+            this.numPollCount = new System.Windows.Forms.NumericUpDown();
+            this.btnStartPoll = new System.Windows.Forms.Button();
+            this.btnStopPoll = new System.Windows.Forms.Button();
+            this.grpPolling.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numPollCount)).BeginInit();
             this.SuspendLayout();
             // 
             // Label1
@@ -296,11 +303,77 @@ namespace EMVCard
             this.chkMaskPAN.UseVisualStyleBackColor = true;
             this.chkMaskPAN.CheckedChanged += new System.EventHandler(this.chkMaskPAN_CheckedChanged);
             // 
+            // grpPolling
+            // 
+            this.grpPolling.Controls.Add(this.lblPollCount);
+            this.grpPolling.Controls.Add(this.numPollCount);
+            this.grpPolling.Controls.Add(this.btnStartPoll);
+            this.grpPolling.Controls.Add(this.btnStopPoll);
+            this.grpPolling.Location = new System.Drawing.Point(348, 559);
+            this.grpPolling.Name = "grpPolling";
+            this.grpPolling.Size = new System.Drawing.Size(405, 63);
+            this.grpPolling.TabIndex = 41;
+            this.grpPolling.TabStop = false;
+            this.grpPolling.Text = "Auto Polling";
+            // 
+            // lblPollCount
+            // 
+            this.lblPollCount.AutoSize = true;
+            this.lblPollCount.Location = new System.Drawing.Point(6, 28);
+            this.lblPollCount.Name = "lblPollCount";
+            this.lblPollCount.Size = new System.Drawing.Size(73, 20);
+            this.lblPollCount.TabIndex = 3;
+            this.lblPollCount.Text = "Reads:";
+            // 
+            // numPollCount
+            // 
+            this.numPollCount.Location = new System.Drawing.Point(85, 26);
+            this.numPollCount.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numPollCount.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numPollCount.Name = "numPollCount";
+            this.numPollCount.Size = new System.Drawing.Size(80, 27);
+            this.numPollCount.TabIndex = 2;
+            this.numPollCount.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            // 
+            // btnStartPoll
+            // 
+            this.btnStartPoll.Location = new System.Drawing.Point(181, 23);
+            this.btnStartPoll.Name = "btnStartPoll";
+            this.btnStartPoll.Size = new System.Drawing.Size(100, 30);
+            this.btnStartPoll.TabIndex = 0;
+            this.btnStartPoll.Text = "Start Poll";
+            this.btnStartPoll.UseVisualStyleBackColor = true;
+            this.btnStartPoll.Click += new System.EventHandler(this.btnStartPoll_Click);
+            // 
+            // btnStopPoll
+            // 
+            this.btnStopPoll.Enabled = false;
+            this.btnStopPoll.Location = new System.Drawing.Point(295, 23);
+            this.btnStopPoll.Name = "btnStopPoll";
+            this.btnStopPoll.Size = new System.Drawing.Size(100, 30);
+            this.btnStopPoll.TabIndex = 1;
+            this.btnStopPoll.Text = "Stop Poll";
+            this.btnStopPoll.UseVisualStyleBackColor = true;
+            this.btnStopPoll.Click += new System.EventHandler(this.btnStopPoll_Click);
+            // 
             // MainEMVReaderBin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(766, 634);
+            this.Controls.Add(this.grpPolling);
             this.Controls.Add(this.chkMaskPAN);
             this.Controls.Add(this.lblSLToken);
             this.Controls.Add(this.txtSLToken);
@@ -333,6 +406,9 @@ namespace EMVCard
             this.Name = "MainEMVReaderBin";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PS/SC EMV Card Reader";
+            this.grpPolling.ResumeLayout(false);
+            this.grpPolling.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numPollCount)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -365,6 +441,11 @@ namespace EMVCard
         private System.Windows.Forms.TextBox txtSLToken;
         private System.Windows.Forms.Label lblSLToken;
         private System.Windows.Forms.CheckBox chkMaskPAN;
+        private System.Windows.Forms.GroupBox grpPolling;
+        private System.Windows.Forms.Label lblPollCount;
+        private System.Windows.Forms.NumericUpDown numPollCount;
+        private System.Windows.Forms.Button btnStartPoll;
+        private System.Windows.Forms.Button btnStopPoll;
     }
 }
 

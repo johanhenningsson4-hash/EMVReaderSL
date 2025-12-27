@@ -41,10 +41,15 @@ namespace EMVCard
 
         // Configuration
         private bool _maskPAN = false;
+        private bool _isPolling = false;
+        private int _pollCount = 0;
+        private int _maxPolls = 0;
+        private System.Windows.Forms.Timer _pollTimer;
 
         public MainEMVReaderBin() {
             InitializeComponent();
             InitializeEmvComponents();
+            InitializePolling();
         }
 
         /// <summary>
@@ -60,6 +65,16 @@ namespace EMVCard
             // Wire up logging events
             _cardReader.LogMessage += (s, msg) => displayOut(0, 0, msg);
             _dataParser.LogMessage += (s, msg) => displayOut(0, 0, msg);
+        }
+
+        /// <summary>
+        /// Initialize polling timer.
+        /// </summary>
+        private void InitializePolling()
+        {
+            _pollTimer = new System.Windows.Forms.Timer();
+            _pollTimer.Interval = 2000; // 2 seconds between polls
+            _pollTimer.Tick += PollTimer_Tick;
         }
 
         private void ClearBuffers() {
@@ -353,6 +368,223 @@ namespace EMVCard
                     displayOut(0, 0, "PAN masking disabled - showing full card number");
                 }
             }
+        }
+
+        /// <summary>
+        /// Start polling for card reads.
+        /// </summary>
+        private void btnStartPoll_Click(object sender, EventArgs e)
+        {
+            if (_isPolling)
+            {
+                displayOut(0, 0, "Polling already in progress");
+                return;
+            }
+
+            // Check if application is selected
+            if (string.IsNullOrEmpty(cbPSE.Text) || !_appDisplayNameToInfo.ContainsKey(cbPSE.Text))
+            {
+                displayOut(0, 0, "Please select an application before starting poll");
+                return;
+            }
+
+            // Get poll count from numeric updown
+            _maxPolls = (int)numPollCount.Value;
+            if (_maxPolls <= 0)
+            {
+                displayOut(0, 0, "Please enter a valid poll count (greater than 0)");
+                return;
+            }
+
+            _pollCount = 0;
+            _isPolling = true;
+            
+            // Update UI
+            btnStartPoll.Enabled = false;
+            btnStopPoll.Enabled = true;
+            numPollCount.Enabled = false;
+            
+            displayOut(0, 0, $"Starting polling: {_maxPolls} reads, interval: {_pollTimer.Interval}ms");
+            
+            // Start first read immediately
+            PerformCardRead();
+            
+            // Start timer for subsequent reads
+            _pollTimer.Start();
+        }
+
+        /// <summary>
+        /// Stop polling for card reads.
+        /// </summary>
+        private void btnStopPoll_Click(object sender, EventArgs e)
+        {
+            StopPolling();
+            displayOut(0, 0, $"Polling stopped by user. Completed {_pollCount} of {_maxPolls} reads");
+        }
+
+        /// <summary>
+        /// Timer tick event for polling.
+        /// </summary>
+        private void PollTimer_Tick(object sender, EventArgs e)
+        {
+            if (!_isPolling)
+            {
+                _pollTimer.Stop();
+                return;
+            }
+
+            if (_pollCount >= _maxPolls)
+            {
+                StopPolling();
+                displayOut(0, 0, $"Polling completed: {_pollCount} reads finished");
+                return;
+            }
+
+            PerformCardRead();
+        }
+
+        /// <summary>
+        /// Perform a single card read operation.
+        /// </summary>
+        private void PerformCardRead()
+        {
+            _pollCount++;
+            displayOut(0, 0, $"--- Poll {_pollCount} of {_maxPolls} ---");
+            
+            try
+            {
+                // Check/reconnect to card before each poll
+                if (!EnsureCardConnection())
+                {
+                    displayOut(0, 0, $"Poll {_pollCount}: Waiting for card...");
+                    return;
+                }
+
+                // Use the existing bReadApp_Click logic
+                var selectedApp = _appDisplayNameToInfo[cbPSE.Text];
+                
+                // Clear only card data fields
+                _currentCardData.Clear();
+                
+                // Select application
+                if (!_appSelector.SelectApplication(selectedApp.AID, out byte[] fciData))
+                {
+                    displayOut(0, 0, $"Poll {_pollCount}: Select AID Failed");
+                    return;
+                }
+
+                // Initialize components if needed
+                if (_gpoProcessor == null)
+                {
+                    _gpoProcessor = new EmvGpoProcessor(_cardReader);
+                    _gpoProcessor.LogMessage += (s, msg) => displayOut(0, 0, msg);
+                }
+
+                if (_recordReader == null)
+                {
+                    _recordReader = new EmvRecordReader(_cardReader, _dataParser);
+                    _recordReader.LogMessage += (s, msg) => displayOut(0, 0, msg);
+                }
+
+                if (_tokenGenerator == null)
+                {
+                    _tokenGenerator = new EmvTokenGenerator();
+                    _tokenGenerator.LogMessage += (s, msg) => displayOut(0, 0, msg);
+                }
+
+                // Send GPO
+                bool gpoSuccess = _gpoProcessor.SendGPO(fciData, out byte[] gpoResponse);
+                
+                if (gpoSuccess)
+                {
+                    _dataParser.ParseTLV(gpoResponse, 0, gpoResponse.Length - 2, _currentCardData, 0);
+                    var aflList = _dataParser.ParseAFL(gpoResponse, gpoResponse.Length);
+                    
+                    if (aflList.Count > 0)
+                    {
+                        _recordReader.ReadAFLRecords(aflList, _currentCardData);
+                    }
+                    else
+                    {
+                        _recordReader.TryReadCommonRecords(_currentCardData);
+                    }
+                }
+                else
+                {
+                    _recordReader.TryReadCommonRecords(_currentCardData);
+                }
+
+                _dataParser.ExtractFromTrack2(_currentCardData);
+                UpdateUIFromCardData();
+
+                // Generate SL Token
+                var tokenResult = _tokenGenerator.GenerateToken(_currentCardData, _currentCardData.PAN, selectedApp.AID);
+                
+                if (tokenResult.Success)
+                {
+                    txtSLToken.Text = tokenResult.Token;
+                    displayOut(0, 0, $"Poll {_pollCount}: Success - PAN: {(_maskPAN ? Util.MaskPAN(_currentCardData.PAN) : _currentCardData.PAN)}");
+                }
+                else
+                {
+                    txtSLToken.Text = $"Error: {tokenResult.ErrorMessage}";
+                    displayOut(0, 0, $"Poll {_pollCount}: Token generation failed");
+                }
+            }
+            catch (Exception ex)
+            {
+                displayOut(0, 0, $"Poll {_pollCount}: Error - {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Ensure card is connected before reading. Attempts reconnection if needed.
+        /// </summary>
+        /// <returns>True if card is ready, false if waiting for card</returns>
+        private bool EnsureCardConnection()
+        {
+            try
+            {
+                // Always try to reconnect to detect card changes
+                // This will fail quickly if no card is present
+                if (!string.IsNullOrEmpty(cbReader.Text))
+                {
+                    // Disconnect first to reset state
+                    if (_cardReader.IsConnected)
+                    {
+                        _cardReader.Disconnect();
+                    }
+
+                    // Try to connect
+                    bool connected = _cardReader.Connect(cbReader.Text);
+                    if (connected)
+                    {
+                        displayOut(0, 0, "Card detected and connected");
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                displayOut(0, 0, $"Card connection check failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Stop polling and reset UI.
+        /// </summary>
+        private void StopPolling()
+        {
+            _isPolling = false;
+            _pollTimer.Stop();
+            
+            // Update UI
+            btnStartPoll.Enabled = true;
+            btnStopPoll.Enabled = false;
+            numPollCount.Enabled = true;
         }
     }
 }
