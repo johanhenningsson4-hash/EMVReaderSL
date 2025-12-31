@@ -16,6 +16,7 @@ A professional Windows Forms application for reading EMV chip cards (contact and
 - ? **EMV Compliant** - Full EMV v4.3 TLV parsing and data extraction
 - ? **SL Token Generation** - SHA-256 based secure tokens from ICC certificates
 - ? **Multi-Application Cards** - Handles cards with multiple payment applications
+- ? **Aztec QR Code Support** - Generate Aztec codes using AztecQRGenerator.Core
 
 ### Data Extraction
 - ?? **Card Number (PAN)** - Primary Account Number
@@ -43,6 +44,9 @@ A professional Windows Forms application for reading EMV chip cards (contact and
 - .NET Framework 4.7.2 or later
 - Visual Studio 2017 or later (for development)
 
+### NuGet Dependencies
+- **AztecQRGenerator.Core** (v1.0.0) - For Aztec QR code generation
+
 ### Tested Readers
 - ACR122U (contactless)
 - SCM SCR331 (contact)
@@ -58,12 +62,18 @@ git clone https://github.com/johanhenningsson4-hash/EMVReaderSL.git
 cd EMVReaderSLCard
 ```
 
-2. Open in Visual Studio:
+2. Restore NuGet packages:
+```bash
+nuget restore
+# or in Visual Studio: Right-click solution > Restore NuGet Packages
+```
+
+3. Open in Visual Studio:
 ```bash
 start EMVReaderSL.sln
 ```
 
-3. Build and run (F5)
+4. Build and run (F5)
 
 ### Basic Usage
 
@@ -171,12 +181,6 @@ E3 B0 C4 42 98 FC 1C 14 9A FB F4 C8 99 6F B9 24 27 AE 41 E4 64 9B 93 4C A4 95 99
 - `9F46/47/48` - ICC Certificate/Exponent/Remainder
 
 ### EmvTokenGenerator
-**Purpose:** SL Token generation
-
-**Methods:**
-- `GenerateToken(cardData, pan, aid)` - Generate from card data
-- `GenerateTokenFromCertificate(certificate)` - Generate from cert bytes
-
 **Returns:** `TokenResult` with `Success`, `Token`, or `ErrorMessage`
 
 ## ??? EMV Tags Reference
