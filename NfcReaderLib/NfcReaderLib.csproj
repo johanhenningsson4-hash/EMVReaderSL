@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+ï»¿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
@@ -6,19 +6,19 @@
     <AssemblyName>NfcReaderLib</AssemblyName>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>NfcReaderLib</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Johan Henningsson</Authors>
     <Company>Johan Henningsson</Company>
     <Product>NFC Reader Library</Product>
-    <Description>NFC/Smart card utilities including PC/SC communication, SL Token generation (SHA-256 based tokens from ICC certificates), and utility functions for card data processing. Updated for 2026 release with improved documentation and copyright.</Description>
-    <PackageTags>nfc;smartcard;pcsc;sl-token;emv;icc-certificate</PackageTags>
+    <Description>NFC/Smart card utilities including PC/SC communication with automatic 32/64-bit platform detection, SL Token generation (SHA-256 based tokens from ICC certificates), EMV card reader support, and utility functions for card data processing. Platform-independent wrapper for seamless operation on both 32-bit and 64-bit Windows systems.</Description>
+    <PackageTags>nfc;smartcard;pcsc;sl-token;emv;icc-certificate;32bit;64bit;platform-independent</PackageTags>
     <PackageProjectUrl>https://github.com/johanhenningsson4-hash/EMVReaderSL</PackageProjectUrl>
     <RepositoryUrl>https://github.com/johanhenningsson4-hash/EMVReaderSL</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Copyright © Johan Henningsson 2026</Copyright>
+    <Copyright>Copyright ï¿½ Johan Henningsson 2026</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>v1.0.1 - Updated copyright to 2026, improved documentation, no functional changes.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.0.2 - Added platform-independent wrapper (ModWinsCard) for automatic 32-bit/64-bit detection. Migrated EmvCardReader to use IntPtr for cross-platform compatibility. Includes ModWinsCard, ModWinsCard32, and ModWinsCard64 implementations. Updated documentation with migration guide and NuGet publishing workflow.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,7 +26,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include=".git-hooks\pre-commit" />
     <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="README_ModWinsCard.md" Pack="true" PackagePath="\" />
+    <None Include="MIGRATION_SUMMARY.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

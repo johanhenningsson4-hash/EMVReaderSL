@@ -1,0 +1,63 @@
+#!/bin/sh
+# Git pre-commit hook to prevent committing secrets
+# Place this file at: .git/hooks/pre-commit
+# Make executable: chmod +x .git/hooks/pre-commit
+
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+echo "Checking for secrets..."
+
+# Patterns to search for
+PATTERNS=(
+    "NUGET_API_KEY.*=.*[a-zA-Z0-9]{20,}"
+    "api[_-]?key.*=.*['\"][a-zA-Z0-9]{20,}['\"]"
+    "password.*=.*['\"][^'\"]{8,}['\"]"
+    "token.*=.*['\"][a-zA-Z0-9]{20,}['\"]"
+)
+
+# Check staged files
+FOUND=0
+for pattern in "${PATTERNS[@]}"; do
+    matches=$(git diff --cached --name-only | xargs grep -n -E "$pattern" 2>/dev/null)
+    if [ -n "$matches" ]; then
+        echo "${RED}WARNING: Potential secret found!${NC}"
+        echo "$matches"
+        FOUND=1
+    fi
+done
+
+# Check for common secret filenames
+SECRET_FILES=(
+    ".env"
+    ".env.local"
+    "secrets.txt"
+    "api-keys.txt"
+    "*.key"
+    "*.pem"
+    "*.pfx"
+)
+
+for file in "${SECRET_FILES[@]}"; do
+    if git diff --cached --name-only | grep -q "$file"; then
+        echo "${RED}WARNING: Attempting to commit secret file: $file${NC}"
+        FOUND=1
+    fi
+done
+
+if [ $FOUND -eq 1 ]; then
+    echo ""
+    echo "${YELLOW}================================================${NC}"
+    echo "${RED}Commit blocked: Potential secrets detected!${NC}"
+    echo "${YELLOW}================================================${NC}"
+    echo ""
+    echo "If this is a false positive, you can:"
+    echo "1. Review the changes carefully"
+    echo "2. Use: git commit --no-verify (NOT RECOMMENDED)"
+    echo ""
+    exit 1
+fi
+
+echo "? No secrets detected"
+exit 0

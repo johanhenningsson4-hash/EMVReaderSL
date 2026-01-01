@@ -1,0 +1,35 @@
+# GitHub Actions workflow for publishing to NuGet
+name: Publish to NuGet
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Trigger on version tags like v1.0.0
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x'  # Need .NET 6+ for building .NET Framework projects
+        
+    - name: Restore dependencies
+      run: dotnet restore NfcReaderLib/NfcReaderLib.csproj
+      
+    - name: Build
+      run: dotnet build NfcReaderLib/NfcReaderLib.csproj --configuration Release --no-restore
+      
+    - name: Pack
+      run: dotnet pack NfcReaderLib/NfcReaderLib.csproj --configuration Release --no-build --output ./artifacts
+      
+    - name: Publish to NuGet
+      run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

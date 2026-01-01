@@ -1,26 +1,35 @@
 # NfcReaderLib
 
-Low-level NFC/Smart card utilities library providing PC/SC communication, SL Token generation, and utility functions for card data processing.
+Low-level NFC/Smart card utilities library providing **platform-independent PC/SC communication**, SL Token generation, and utility functions for card data processing.
 
 ![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2-blue)
 ![NuGet](https://img.shields.io/nuget/v/NfcReaderLib)
 ![License](https://img.shields.io/badge/license-MIT-blue)
+![Platform](https://img.shields.io/badge/platform-32bit%20%7C%2064bit-green)
+
+## ? What's New in v1.0.2
+
+- ?? **Platform-Independent Wrapper** - Automatic 32-bit/64-bit detection
+- ?? **Unified API** - Single codebase for both platforms
+- ?? **Enhanced PC/SC Support** - `ModWinsCard`, `ModWinsCard32`, `ModWinsCard64`
+- ?? **Improved Documentation** - Complete guides and examples
+- ?? **NuGet Publishing** - Easy updates with GitHub Actions
 
 ## ?? Installation
 
 ### Package Manager Console
 ```powershell
-Install-Package NfcReaderLib -Version 1.0.1
+Install-Package NfcReaderLib -Version 1.0.2
 ```
 
 ### .NET CLI
 ```bash
-dotnet add package NfcReaderLib --version 1.0.1
+dotnet add package NfcReaderLib --version 1.0.2
 ```
 
 ### PackageReference
 ```xml
-<PackageReference Include="NfcReaderLib" Version="1.0.1" />
+<PackageReference Include="NfcReaderLib" Version="1.0.2" />
 ```
 
 ## ?? Target Framework
@@ -33,22 +42,56 @@ Compatible with:
 - .NET Core 2.0+
 - .NET 5+
 
-## ? Features
+**Platforms:** Windows (32-bit and 64-bit automatically detected)
+
+## ?? Features
 
 ### Core Functionality
-- ?? **PC/SC Communication** - Low-level smart card reader communication
+- ?? **Platform-Independent PC/SC** - Automatic 32/64-bit detection
 - ?? **SL Token Generation** - SHA-256 based secure tokens from ICC certificates
 - ?? **Card Utilities** - Helper functions for card data processing
 - ?? **Data Formatting** - Byte array and hex string conversions
-- ??? **TLV Support** - Tag-Length-Value structure handling
+- ??? **EMV Support** - ICC certificate parsing and validation
+- ?? **Cryptography** - SHA-256 hashing utilities
+
+### Platform Support
+- ? **Windows 32-bit** - Full support via `ModWinsCard32`
+- ? **Windows 64-bit** - Full support via `ModWinsCard64`
+- ? **Auto-Detection** - Use `ModWinsCard` wrapper for automatic platform selection
+- ? **IntPtr Handles** - Platform-appropriate handle sizes
 
 ## ?? Quick Start
+
+### Platform-Independent PC/SC Communication
 
 ```csharp
 using NfcReaderLib;
 
-// Convert hex string to byte array
-byte[] data = Util.FromHexString("9F 46 01 02 03");
+// ModWinsCard automatically detects 32-bit or 64-bit platform
+IntPtr hContext = IntPtr.Zero;
+int result = ModWinsCard.SCardEstablishContext(
+    ModWinsCard.SCARD_SCOPE_USER, 0, 0, ref hContext);
+
+if (result == ModWinsCard.SCARD_S_SUCCESS)
+{
+    Console.WriteLine($"Running on {ModWinsCard.GetPlatformInfo()} platform");
+    
+    // List readers
+    int pcchReaders = 0;
+    ModWinsCard.SCardListReaders(hContext, null, null, ref pcchReaders);
+    
+    byte[] readers = new byte[pcchReaders];
+    ModWinsCard.SCardListReaders(hContext, null, readers, ref pcchReaders);
+    
+    // Release context
+    ModWinsCard.SCardReleaseContext(hContext);
+}
+```
+
+### SL Token Generation
+
+```csharp
+using NfcReaderLib;
 
 // Generate SL Token from ICC certificate
 var slCard = new SLCard
@@ -57,19 +100,63 @@ var slCard = new SLCard
     AID = "A0000000031010",
     IccPublicKeyCertificate = iccCertData
 };
-string token = slCard.GetSLToken2();
 
-// Format card number
+string token = slCard.GetSLToken();      // No spaces: "E3B0C442..."
+string token2 = slCard.GetSLToken2();    // With spaces: "E3 B0 C4 42..."
+```
+
+### Utility Functions
+
+```csharp
+// Hex conversions
+byte[] data = Util.FromHexString("9F 46 01 02 03");
+string hex = Util.ByteArrayToHexString(data);
+
+// PAN masking
 string masked = Util.MaskPAN("1234567890123456");
 // Output: "1234 56** **** 3456"
 
-// Calculate SHA-256 hash
-byte[] hash = Util.CalculateSHA1(data); // Despite name, uses SHA-256
+// SHA-256 hash
+byte[] hash = Util.CalculateSHA1(data);
 ```
 
 ## ?? Main Classes
 
+### ModWinsCard (Platform-Independent Wrapper) ? NEW
+
+**Purpose:** Automatic 32-bit/64-bit platform detection for PC/SC operations
+
+**Key Features:**
+- ?? Automatic platform detection using `IntPtr.Size`
+- ?? Single API for both 32-bit and 64-bit Windows
+- ? Type-safe with `IntPtr` handles
+- ? Zero performance overhead
+
+**Example:**
+```csharp
+// Check platform
+bool is64Bit = ModWinsCard.IsRunning64Bit();
+string platform = ModWinsCard.GetPlatformInfo(); // "32-bit" or "64-bit"
+
+// Establish context (works on both platforms)
+IntPtr hContext = IntPtr.Zero;
+int result = ModWinsCard.SCardEstablishContext(
+    ModWinsCard.SCARD_SCOPE_USER, 0, 0, ref hContext);
+```
+
+**Methods:**
+- Context Management: `SCardEstablishContext`, `SCardReleaseContext`
+- Reader Operations: `SCardListReaders`, `SCardConnect`, `SCardDisconnect`
+- Card Operations: `SCardStatus`, `SCardTransmit`, `SCardBeginTransaction`
+- Error Handling: `GetScardErrMsg(int returnCode)`
+- Platform Info: `IsRunning64Bit()`, `GetPlatformInfo()`
+
+**See also:** [Platform Wrapper Documentation](./README_ModWinsCard.md)
+
+---
+
 ### SLCard
+
 **Purpose:** Card model with ICC certificate parsing and SL Token generation
 
 **Properties:**
@@ -78,10 +165,15 @@ byte[] hash = Util.CalculateSHA1(data); // Despite name, uses SHA-256
 - `IccPublicKeyCertificate` - ICC certificate data (Tag 9F46)
 - `IccPublicKeyExponent` - ICC exponent (Tag 9F47)
 - `IccPublicKeyRemainder` - ICC remainder (Tag 9F48)
+- `IssuerPublicKeyCertificate` - Issuer certificate (Tag 90)
+- `IssuerPublicKeyExponent` - Issuer exponent (Tag 9F32)
+- `IssuerPublicKeyRemainder` - Issuer remainder (Tag 92)
 
 **Methods:**
-- `GetSLToken2()` - Generate SHA-256 based SL Token (space-separated hex format)
-- `ParseIccCertificate(byte[] data)` - Parse multi-line ICC certificate format
+- `GetSLToken()` - Generate SHA-256 based SL Token (no spaces)
+- `GetSLToken2()` - Generate SHA-256 based SL Token (space-separated hex)
+- `GetMaskedPAN()` - Get masked PAN for privacy
+- `ParseIccPublicKey(EmvPublicKey issuerKey)` - Parse ICC certificate (EMV v4.3)
 
 **Example:**
 ```csharp
@@ -93,69 +185,86 @@ var slCard = new SLCard
 };
 
 string token = slCard.GetSLToken2();
-// Output: "E3 B0 C4 42 98 FC 1C 14 9A FB ... 52 B8 55" (64 hex bytes, space-separated)
+// Output: "E3 B0 C4 42 98 FC 1C 14 ... 52 B8 55" (64 hex bytes)
+
+string maskedPan = slCard.GetMaskedPAN();
+// Output: "1234 56** **** 3456"
 ```
 
+---
+
 ### Util
+
 **Purpose:** Utility functions for data conversion and formatting
 
 **Key Methods:**
 
 **Hex Conversions:**
 - `FromHexString(string hex)` - Convert hex string to byte array
-  ```csharp
-  byte[] data = Util.FromHexString("9F 46 01 02");
-  ```
 - `ByteArrayToHexString(byte[] bytes)` - Convert byte array to hex string
-  ```csharp
-  string hex = Util.ByteArrayToHexString(data); // "9F460102"
-  ```
 - `PrettyPrintHex(byte[] data)` - Format as space-separated hex
-  ```csharp
-  string pretty = Util.PrettyPrintHex(data); // "9F 46 01 02"
-  ```
 
 **PAN Masking:**
 - `MaskPAN(string pan)` - Mask card number for privacy
-  ```csharp
-  string masked = Util.MaskPAN("1234567890123456");
-  // Output: "1234 56** **** 3456"
-  ```
 - `MaskCardNumber(string cardNumber, string mask)` - Custom masking
-  ```csharp
-  string masked = Util.MaskCardNumber("1234567890123456", "####-##xx-xxxx-####");
-  // Output: "1234-56xx-xxxx-3456"
-  ```
 
 **Cryptography:**
-- `CalculateSHA1(byte[] data)` - SHA-256 hash (note: method name is legacy)
-  ```csharp
-  byte[] hash = Util.CalculateSHA1(certificateData);
-  ```
+- `CalculateSHA1(byte[] data)` - SHA-256 hash (note: legacy name)
 
 **Data Conversion:**
 - `ByteToInt(byte b)` - Convert byte to integer
-- `ByteToInt(byte first, byte second)` - Convert two bytes to integer
 - `Byte2Short(byte b1, byte b2)` - Convert two bytes to short
 - `HexToAscii(string hexStr)` - Convert hex string to ASCII
 - `NotEmpty(byte[] bytearray)` - Check if array has data
 
-**String Utilities:**
-- `GetSpaces(int length)` - Generate spacing string
+---
 
-### ModWinsCard64
-**Purpose:** PC/SC (Personal Computer/Smart Card) wrapper for Windows
+## ?? Platform-Independent Architecture
 
-**Key Methods:**
-- PC/SC context management
-- Card reader enumeration
-- APDU command transmission
-- ATR (Answer To Reset) reading
+### How It Works
 
-**Status Word Handling:**
-- `GetScardErrMsg(int retCode)` - Get error message for PC/SC return code
+```
+Your Application
+       ?
+  ModWinsCard (Wrapper)
+       ?
+   [Platform Detection: IntPtr.Size == 8?]
+       ?
+  ???????????
+  ?         ?
+64-bit    32-bit
+(Int64)   (int)
+  ?         ?
+winscard.dll
+```
 
-**Note:** This is a low-level class typically used through higher-level wrappers.
+### Benefits
+
+? **Single Codebase** - Write once, run on both platforms  
+? **Automatic Detection** - No configuration needed  
+? **Type Safe** - IntPtr ensures correct handle sizes  
+? **Zero Overhead** - Simple delegation pattern  
+? **Backward Compatible** - Platform-specific classes still available  
+
+### Migration Example
+
+**Before (64-bit only):**
+```csharp
+Int64 hContext = 0;
+ModWinsCard64.SCardEstablishContext(
+    ModWinsCard64.SCARD_SCOPE_USER, 0, 0, ref hContext);
+```
+
+**After (Platform-independent):**
+```csharp
+IntPtr hContext = IntPtr.Zero;
+ModWinsCard.SCardEstablishContext(
+    ModWinsCard.SCARD_SCOPE_USER, 0, 0, ref hContext);
+```
+
+**See:** [Migration Guide](./MIGRATION_SUMMARY.md)
+
+---
 
 ## ?? SL Token Details
 
@@ -177,11 +286,11 @@ Output: "E3 B0 C4 42 98 FC 1C 14 9A FB F4 C8 99 6F B9 24 27 AE 41 E4 64 9B 93 4C
 
 ### Properties
 
-? **Unique** - Each card generates a unique token  
-? **Consistent** - Same card always produces the same token  
-? **Secure** - One-way hash, cannot be reversed  
-? **Privacy-Friendly** - No PAN or sensitive data exposed  
-? **Format** - 64 bytes as space-separated hex (191 characters)  
+?? **Unique** - Each card generates a unique token  
+?? **Consistent** - Same card always produces the same token  
+?? **Secure** - One-way hash, cannot be reversed  
+??? **Privacy-Friendly** - No PAN or sensitive data exposed  
+?? **Format** - 64 bytes as space-separated hex (191 characters)  
 
 ### Use Cases
 
@@ -191,36 +300,32 @@ Output: "E3 B0 C4 42 98 FC 1C 14 9A FB F4 C8 99 6F B9 24 27 AE 41 E4 64 9B 93 4C
 - ?? Duplicate card detection
 - ?? Analytics without storing sensitive data
 
-## ??? Advanced Usage
+---
 
-### Multi-Line ICC Certificate Parsing
+## ?? Advanced Usage
 
-The SLCard class handles multi-line certificate formats automatically:
+### EMV Certificate Parsing
 
 ```csharp
-string certData = @"Cert: 9F4681...
-Exp: 03
-Rem: 12345...";
+using NfcReaderLib;
 
 var slCard = new SLCard
 {
     PAN = "1234567890123456",
-    AID = "A0000000031010"
+    AID = "A0000000031010",
+    IccPublicKeyCertificate = iccCert,
+    IccPublicKeyExponent = iccExp,
+    IccPublicKeyRemainder = iccRem
 };
 
-// Parse multi-line format
-string[] lines = certData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-foreach (string line in lines)
-{
-    if (line.StartsWith("Cert:"))
-        slCard.IccPublicKeyCertificate = Util.FromHexString(line.Substring(5));
-    else if (line.StartsWith("Exp:"))
-        slCard.IccPublicKeyExponent = Util.FromHexString(line.Substring(4));
-    else if (line.StartsWith("Rem:"))
-        slCard.IccPublicKeyRemainder = Util.FromHexString(line.Substring(4));
-}
+// Parse ICC public key (requires issuer public key)
+var issuerKey = new SLCard.EmvPublicKey(issuerModulus, issuerExponent);
+var iccKey = slCard.ParseIccPublicKey(issuerKey);
 
-string token = slCard.GetSLToken2();
+if (iccKey != null)
+{
+    Console.WriteLine($"ICC Key: {iccKey}");
+}
 ```
 
 ### Custom Hex Formatting
@@ -238,20 +343,24 @@ string pretty = Util.PrettyPrintHex(data); // "9F 46 01 02"
 byte[] parsed = Util.FromHexString(pretty);
 ```
 
-### PAN Masking Patterns
+### Platform Detection
 
 ```csharp
-// Standard masking (first 6 + last 4)
-string pan1 = Util.MaskPAN("1234567890123456"); 
-// "1234 56** **** 3456"
+// Check current platform
+if (ModWinsCard.IsRunning64Bit())
+{
+    Console.WriteLine("Running on 64-bit Windows");
+}
+else
+{
+    Console.WriteLine("Running on 32-bit Windows");
+}
 
-// Custom masking
-string pan2 = Util.MaskCardNumber("1234567890123456", "####-####-####-####");
-// "1234-5678-9012-3456"
-
-string pan3 = Util.MaskCardNumber("1234567890123456", "####-##xx-xxxx-####");
-// "1234-56xx-xxxx-3456"
+// Or get string
+Console.WriteLine($"Platform: {ModWinsCard.GetPlatformInfo()}");
 ```
+
+---
 
 ## ?? Dependencies
 
@@ -261,16 +370,51 @@ string pan3 = Util.MaskCardNumber("1234567890123456", "####-##xx-xxxx-####");
 
 - .NET Framework 4.7.2 or later
 - Windows 7 or later (for PC/SC support)
+- PC/SC smart card reader (for card operations)
+
+---
 
 ## ?? Documentation
 
-For complete documentation and usage examples, visit:
+### Included Documentation
+
+- **[README_ModWinsCard.md](./README_ModWinsCard.md)** - Platform wrapper guide
+- **[MIGRATION_SUMMARY.md](./MIGRATION_SUMMARY.md)** - Migration details
+- **[QUICKSTART_NUGET.md](./QUICKSTART_NUGET.md)** - Publishing guide
+
+### Online Resources
+
 - [GitHub Repository](https://github.com/johanhenningsson4-hash/EMVReaderSL)
 - [NuGet Package](https://www.nuget.org/packages/NfcReaderLib)
+- [Issues & Support](https://github.com/johanhenningsson4-hash/EMVReaderSL/issues)
+
+---
 
 ## ?? Related Packages
 
 - **EMVCard.Core** - High-level EMV card reading library (depends on NfcReaderLib)
+
+---
+
+## ?? Contributing
+
+We welcome contributions! See the repository for contribution guidelines.
+
+### Publishing to NuGet
+
+This package uses environment variables for secure NuGet publishing:
+
+```powershell
+# Set API key
+$env:NUGET_API_KEY = "your-key-here"
+
+# Publish
+./publish-nuget.ps1
+```
+
+**See:** [Publishing Guide](./QUICKSTART_NUGET.md)
+
+---
 
 ## ?? License
 
@@ -278,17 +422,45 @@ Copyright © Johan Henningsson 2026
 
 This project is licensed under the MIT License.
 
-## ?? Author
+---
+
+## ????? Author
 
 **Johan Henningsson**
 - GitHub: [@johanhenningsson4-hash](https://github.com/johanhenningsson4-hash)
 - Repository: [EMVReaderSL](https://github.com/johanhenningsson4-hash/EMVReaderSL)
+
+---
 
 ## ?? Acknowledgments
 
 - EMV specifications by EMVCo
 - PC/SC Workgroup
 - .NET Cryptography API
+- Contributors and users of this library
+
+---
+
+## ?? Version History
+
+### v1.0.2 (Latest)
+- ? Added platform-independent wrapper (`ModWinsCard`)
+- ? Automatic 32-bit/64-bit detection
+- ? Updated `EmvCardReader` to use `IntPtr`
+- ?? Enhanced documentation with guides
+- ?? Added NuGet publishing workflow
+- ?? Added security features (Git hooks, .gitignore)
+
+### v1.0.1
+- ?? Updated copyright to 2026
+- ?? Improved documentation
+- No functional changes
+
+### v1.0.0
+- ?? Initial release
+- ?? SL Token generation
+- ?? Card utilities
+- ?? Cryptography helpers
 
 ---
 
