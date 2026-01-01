@@ -142,6 +142,8 @@
     <None Include="ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md" />
     <None Include="ISSUER_KEY_EXTRACTION_DOCUMENTATION.md" />
     <None Include="LOGGING_DOCUMENTATION.md" />
+    <None Include="NUGET_PACKAGES_CREATED.md" />
+    <None Include="NUGET_PUBLISHING_GUIDE.md" />
     <None Include="PAN_MASKING_FEATURE.md" />
     <None Include="POLLING_CONNECTION_FIX.md" />
     <None Include="POLLING_RECONNECTION_FIX.md" />

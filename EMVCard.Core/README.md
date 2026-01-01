@@ -17,6 +17,35 @@ A professional Windows Forms application for reading EMV chip cards (contact and
 - ? **SL Token Generation** - SHA-256 based secure tokens from ICC certificates
 - ? **Multi-Application Cards** - Handles cards with multiple payment applications
 
+### NuGet Package Manager
+```bash
+Install-Package EMVCard.Core -Version 1.0.0
+```
+
+### .NET CLI
+```bash
+dotnet add package EMVCard.Core --version 1.0.0
+```
+
+### Package Reference
+```xml
+<PackageReference Include="EMVCard.Core" Version="1.0.0" />
+```
+
+## ?? Target Framework
+
+- **.NET Framework 4.7.2**
+
+## ? Features
+
+### Core EMV Functionality
+- ?? **PSE/PPSE Support** - Payment System Environment enumeration
+- ?? **Multi-Application Cards** - Handle cards with multiple payment apps
+- ?? **GPO Processing** - Get Processing Options command handling
+- ?? **Record Reading** - Read card records via AFL (Application File Locator)
+- ??? **TLV Parsing** - Complete EMV Tag-Length-Value parsing
+- ?? **SL Token Generation** - SHA-256 based tokens from ICC certificates
+
 ### Data Extraction
 - ?? **Card Number (PAN)** - Primary Account Number
 - ?? **Expiry Date** - Card expiration information
@@ -111,6 +140,91 @@ EMVReaderSLCard/
 ??? ModWinsCard64.cs          # PC/SC wrapper
 ```
 
+## ?? Main Classes
+
+### EmvCardReader
+**Purpose:** PC/SC card reader communication and APDU handling
+
+**Key Methods:**
+- `Initialize()` - Detect available card readers
+- `Connect(readerName)` - Connect to specific reader
+- `SendApduWithAutoFix()` - Send APDU with automatic error retry
+- `Disconnect()` / `Release()` - Cleanup and release resources
+
+**Features:**
+- Automatic 6C/67 Le adjustment
+- Automatic 61 XX GET RESPONSE
+- Comprehensive APDU logging
+
+### EmvApplicationSelector
+**Purpose:** PSE/PPSE application enumeration and selection
+
+**Key Methods:**
+- `LoadPSE(cardReader)` - Load Payment System Environment (contact)
+- `LoadPPSE(cardReader)` - Load Proximity PSE (contactless)
+- `SelectApplication(cardReader, app)` - Select specific application
+- `ParseApplicationList(data)` - Parse FCI template
+
+**Supported AIDs:**
+- Visa (A0000000031010)
+- Mastercard (A0000000041010)
+- UnionPay, Discover, JCB, etc.
+
+### EmvGpoProcessor
+**Purpose:** Get Processing Options command handling
+
+**Key Methods:**
+- `ProcessGPO(cardReader, pdolData)` - Execute GPO command
+- `BuildPDOL(pdolTags, cardData)` - Build PDOL data
+
+**Returns:**
+- GPO response data (AIP + AFL or data templates)
+
+### EmvRecordReader
+**Purpose:** Read card records specified in AFL
+
+**Key Methods:**
+- `ReadRecords(cardReader, aflRecords)` - Read all AFL records
+- `ReadSingleRecord(cardReader, sfi, record)` - Read specific record
+
+**Features:**
+- Handles multiple SFI (Short File Identifier) files
+- Reads all records in AFL range
+
+### EmvDataParser
+**Purpose:** TLV parsing and data extraction
+
+**Key Methods:**
+- `ParseTLV(data)` - Parse EMV TLV structures
+- `ParseAFL(gpoResponse)` - Extract Application File Locator
+- `ExtractFromTrack2(track2Data)` - Extract PAN/expiry from Track 2
+
+**Supported Tags:**
+- All standard EMV tags (5A, 5F20, 5F24, 57, 9F46, etc.)
+
+### EmvTokenGenerator
+**Purpose:** SL Token generation from ICC certificates
+
+**Key Methods:**
+- `GenerateToken(iccCertificate)` - Generate SHA-256 token
+
+**Returns:**
+- `TokenResult` with `Success`, `Token`, or `ErrorMessage`
+
+## ??? EMV Tags Reference
+
+| Tag | Name | Description | Type |
+|-----|------|-------------|------|
+| `5A` | Application PAN | Card number | Binary |
+| `5F20` | Cardholder Name | Name on card | ASCII |
+| `5F24` | Expiration Date | YYMMDD format | Binary |
+| `57` | Track 2 Equivalent | Magnetic data | Binary |
+| `9F38` | PDOL | Processing options DOL | Binary |
+| `94` | AFL | Application File Locator | Binary |
+| `9F46` | ICC Public Key Cert | For DDA/CDA | Binary |
+| `9F47` | ICC PK Exponent | Usually 03 | Binary |
+| `9F48` | ICC PK Remainder | Extra modulus | Binary |
+
 ## ?? SL Token
 
 ### What is it?
@@ -199,6 +313,44 @@ E3 B0 C4 42 98 FC 1C 14 9A FB F4 C8 99 6F B9 24 27 AE 41 E4 64 9B 93 4C A4 95 99
 1. Check USB connection
 2. Install reader drivers
 3. Restart PC/SC service: `net stop SCardSvr && net start SCardSvr`
+
+// Step 3: Select application
+var selectedApp = apps[0];
+selector.SelectApplication(cardReader, selectedApp);
+
+// Step 4: Process GPO
+var gpoProcessor = new EmvGpoProcessor();
+var gpoResult = gpoProcessor.ProcessGPO(cardReader, null);
+
+// Step 5: Read records
+var parser = new EmvDataParser();
+var aflRecords = parser.ParseAFL(gpoResult);
+
+var recordReader = new EmvRecordReader();
+var recordData = recordReader.ReadRecords(cardReader, aflRecords);
+
+// Step 6: Parse card data
+var cardData = parser.ParseTLV(recordData);
+
+// Step 7: Generate SL Token
+var tokenGen = new EmvTokenGenerator();
+if (cardData.ContainsKey("9F46"))
+{
+    var tokenResult = tokenGen.GenerateToken(cardData["9F46"]);
+    if (tokenResult.Success)
+    {
+        Console.WriteLine($"Card Number: {GetPAN(cardData)}");
+        Console.WriteLine($"Expiry: {GetExpiry(cardData)}");
+        Console.WriteLine($"SL Token: {tokenResult.Token}");
+    }
+}
+
+// Step 8: Cleanup
+cardReader.Disconnect();
+cardReader.Release();
+```
+
+## ?? Troubleshooting
 
 ### No Applications Found
 1. Try both PSE and PPSE

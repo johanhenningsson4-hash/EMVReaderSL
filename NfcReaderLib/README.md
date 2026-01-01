@@ -49,6 +49,12 @@ A professional Windows Forms application for reading EMV chip cards (contact and
 - Omnikey 5321 (dual interface)
 - Generic PC/SC readers
 
+- ?? **PC/SC Communication** - Low-level smart card reader communication
+- ?? **SL Token Generation** - SHA-256 based secure tokens from ICC certificates
+- ??? **Card Utilities** - Helper functions for card data processing
+- ?? **Data Formatting** - Byte array and hex string conversions
+- ?? **TLV Parsing Support** - Tag-Length-Value structure handling
+
 ## ?? Quick Start
 
 ### From Source
@@ -76,6 +82,11 @@ start EMVReaderSL.sln
 
 ### Clean Architecture Design
 
+// Generate SL Token from ICC certificate
+byte[] iccCert = GetIccCertificate(); // Tag 9F46
+string slToken = SLCard.GenerateToken(iccCert);
+
+// Output: "E3 B0 C4 42 98 FC 1C 14..." (SHA-256 hash)
 ```
 ????????????????????????????????????????????????
 ?           Presentation Layer                 ?
@@ -114,6 +125,30 @@ EMVReaderSLCard/
 ## ?? SL Token
 
 ### What is it?
+
+**Key Methods:**
+- `GenerateToken(byte[] iccCertificate)` - Generate SL Token from ICC cert
+- `ParseIccCertificate(byte[] data)` - Parse ICC public key certificate
+
+**Properties:**
+- `CardNumber` - Primary Account Number (PAN)
+- `ExpiryDate` - Card expiration date
+- `CardholderName` - Name on card
+- `IccCertificate` - ICC Public Key Certificate (Tag 9F46)
+- `SlToken` - Generated secure link token
+
+### Util Class
+**Purpose:** Utility functions for data conversion and formatting
+
+**Key Methods:**
+- `HexStringToByteArray(string hex)` - Convert hex to bytes
+- `ByteArrayToHexString(byte[] bytes)` - Convert bytes to hex
+- `FormatCardNumber(string pan)` - Format PAN with spaces
+- `FormatExpiryDate(string date)` - Format expiry as MM/YY
+
+## ?? SL Token Details
+
+### What is SL Token?
 
 The **SL (Secure Link) Token** is a unique cryptographic identifier derived from the card's ICC Public Key Certificate using SHA-256 hashing.
 
