@@ -1,0 +1,65 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EMVReaderSL", "EMVReaderSL.csproj", "{36C17DE2-A271-47FC-989A-CA2165BF3639}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NfcReaderLib", "NfcReaderLib\NfcReaderLib.csproj", "{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EMVCard.Core", "EMVCard.Core\EMVCard.Core.csproj", "{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Debug|x64.ActiveCfg = Debug|x64
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Debug|x64.Build.0 = Debug|x64
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Debug|x86.ActiveCfg = Debug|x86
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Debug|x86.Build.0 = Debug|x86
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Release|x64.ActiveCfg = Release|x64
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Release|x64.Build.0 = Release|x64
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Release|x86.ActiveCfg = Release|x86
+		{36C17DE2-A271-47FC-989A-CA2165BF3639}.Release|x86.Build.0 = Release|x86
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Debug|x64.Build.0 = Debug|Any CPU
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Debug|x86.Build.0 = Debug|Any CPU
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Release|x64.ActiveCfg = Release|Any CPU
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Release|x64.Build.0 = Release|Any CPU
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Release|x86.ActiveCfg = Release|Any CPU
+		{27ECDC60-44BC-4FC7-BE76-2FA34A00C26F}.Release|x86.Build.0 = Release|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Debug|x64.Build.0 = Debug|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Debug|x86.Build.0 = Debug|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Release|x64.ActiveCfg = Release|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Release|x64.Build.0 = Release|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Release|x86.ActiveCfg = Release|Any CPU
+		{3E0BC05C-4EA5-4584-AB19-3D3DF024CE6D}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {645F090E-30D2-4BDD-9638-C2A7E6F770D7}
+	EndGlobalSection
+EndGlobal

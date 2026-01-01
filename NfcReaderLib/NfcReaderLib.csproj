@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>NfcReaderLib</RootNamespace>
+    <AssemblyName>NfcReaderLib</AssemblyName>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageId>NfcReaderLib</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Johan Henningsson</Authors>
+    <Company>Johan Henningsson</Company>
+    <Product>NFC Reader Library</Product>
+    <Description>NFC/Smart card utilities including PC/SC communication, SL Token generation (SHA-256 based tokens from ICC certificates), and utility functions for card data processing.</Description>
+    <PackageTags>nfc;smartcard;pcsc;sl-token;emv;icc-certificate</PackageTags>
+    <PackageProjectUrl>https://github.com/johanhenningsson4-hash/EMVReaderSL</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/johanhenningsson4-hash/EMVReaderSL</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright © Johan Henningsson 2024</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

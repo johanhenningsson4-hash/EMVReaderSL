@@ -18,6 +18,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace EMVCard
@@ -77,6 +78,21 @@ namespace EMVCard
             _pollTimer.Tick += PollTimer_Tick;
         }
 
+        /// <summary>
+        /// Helper method to safely update UI from any thread.
+        /// </summary>
+        private void SafeUpdateUI(Action action)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(action);
+            }
+            else
+            {
+                action();
+            }
+        }
+
         private void ClearBuffers() {
             _currentCardData.Clear();
             textCardNum.Text = "";
@@ -91,6 +107,13 @@ namespace EMVCard
         }
 
         private void displayOut(int errType, int retVal, string PrintText) {
+            // Check if we need to invoke on UI thread
+            if (richTextBoxLogs.InvokeRequired)
+            {
+                richTextBoxLogs.Invoke(new Action(() => displayOut(errType, retVal, PrintText)));
+                return;
+            }
+
             switch (errType) {
                 case 0:
                     break;
@@ -117,8 +140,8 @@ namespace EMVCard
             bClear.Enabled = true;
         }
 
-        private void bInit_Click(object sender, EventArgs e) {
-            var readers = _cardReader.Initialize();
+        private async void bInit_Click(object sender, EventArgs e) {
+            var readers = await _cardReader.InitializeAsync();
             
             if (readers.Count == 0)
             {
@@ -139,16 +162,16 @@ namespace EMVCard
                 cbReader.SelectedIndex = 0;
         }
 
-        private void bConnect_Click(object sender, EventArgs e) {
+        private async void bConnect_Click(object sender, EventArgs e) {
             ClearBuffers();
 
-            if (_cardReader.Connect(cbReader.Text))
+            if (await _cardReader.ConnectAsync(cbReader.Text))
             {
                 displayOut(0, 0, $"Successfully connected to {cbReader.Text}");
             }
         }
 
-        private void bReadApp_Click(object sender, EventArgs e) {
+        private async void bReadApp_Click(object sender, EventArgs e) {
             // Check if an application is selected BEFORE clearing buffers
             if (string.IsNullOrEmpty(cbPSE.Text) || !_appDisplayNameToInfo.ContainsKey(cbPSE.Text))
             {
@@ -168,7 +191,8 @@ namespace EMVCard
             txtSLToken.Text = "";
             
             // Select application
-            if (!_appSelector.SelectApplication(selectedApp.AID, out byte[] fciData))
+            var (selectSuccess, fciData) = await _appSelector.SelectApplicationAsync(selectedApp.AID);
+            if (!selectSuccess)
             {
                 displayOut(0, 0, "Select AID Failed");
                 return;
@@ -194,7 +218,7 @@ namespace EMVCard
             }
 
             // Send GPO
-            bool gpoSuccess = _gpoProcessor.SendGPO(fciData, out byte[] gpoResponse);
+            var (gpoSuccess, gpoResponse) = await _gpoProcessor.SendGPOAsync(fciData);
             
             if (!gpoSuccess)
             {
@@ -211,19 +235,19 @@ namespace EMVCard
                 
                 if (aflList.Count > 0)
                 {
-                    _recordReader.ReadAFLRecords(aflList, _currentCardData);
+                    await _recordReader.ReadAFLRecordsAsync(aflList, _currentCardData);
                 }
                 else
                 {
                     displayOut(0, 0, "Could not parse AFL, attempting to read common records");
-                    _recordReader.TryReadCommonRecords(_currentCardData);
+                    await _recordReader.TryReadCommonRecordsAsync(_currentCardData);
                 }
             }
             else
             {
                 // Try reading common records
                 displayOut(0, 0, "Since GPO failed, attempting to read common records directly");
-                _recordReader.TryReadCommonRecords(_currentCardData);
+                await _recordReader.TryReadCommonRecordsAsync(_currentCardData);
             }
 
             // Extract from Track2 if needed
@@ -233,16 +257,20 @@ namespace EMVCard
             UpdateUIFromCardData();
 
             // Generate SL Token
-            var tokenResult = _tokenGenerator.GenerateToken(_currentCardData, _currentCardData.PAN, selectedApp.AID);
+            var tokenResult = await _tokenGenerator.GenerateTokenAsync(_currentCardData, _currentCardData.PAN, selectedApp.AID);
             
-            if (tokenResult.Success)
+            // Update UI on UI thread
+            SafeUpdateUI(() =>
             {
-                txtSLToken.Text = tokenResult.Token;
-            }
-            else
-            {
-                txtSLToken.Text = $"Error: {tokenResult.ErrorMessage}";
-            }
+                if (tokenResult.Success)
+                {
+                    txtSLToken.Text = tokenResult.Token;
+                }
+                else
+                {
+                    txtSLToken.Text = $"Error: {tokenResult.ErrorMessage}";
+                }
+            });
         }
 
         /// <summary>
@@ -250,22 +278,25 @@ namespace EMVCard
         /// </summary>
         private void UpdateUIFromCardData()
         {
-            // Apply PAN masking if enabled
-            if (_maskPAN && !string.IsNullOrEmpty(_currentCardData.PAN))
+            SafeUpdateUI(() =>
             {
-                textCardNum.Text = Util.MaskPAN(_currentCardData.PAN);
-            }
-            else
-            {
-                textCardNum.Text = _currentCardData.PAN ?? "";
-            }
-            
-            textEXP.Text = _currentCardData.ExpiryDate ?? "";
-            textHolder.Text = _currentCardData.CardholderName ?? "";
-            textTrack.Text = _currentCardData.Track2Data ?? "";
-            textIccCert.Text = _currentCardData.IccCertificate ?? "";
+                // Apply PAN masking if enabled
+                if (_maskPAN && !string.IsNullOrEmpty(_currentCardData.PAN))
+                {
+                    textCardNum.Text = Util.MaskPAN(_currentCardData.PAN);
+                }
+                else
+                {
+                    textCardNum.Text = _currentCardData.PAN ?? "";
+                }
+                
+                textEXP.Text = _currentCardData.ExpiryDate ?? "";
+                textHolder.Text = _currentCardData.CardholderName ?? "";
+                textTrack.Text = _currentCardData.Track2Data ?? "";
+                textIccCert.Text = _currentCardData.IccCertificate ?? "";
+            });
         }
-        private void bLoadPSE_Click(object sender, EventArgs e) {
+        private async void bLoadPSE_Click(object sender, EventArgs e) {
             ClearBuffers();
             
             if (_appSelector == null)
@@ -274,7 +305,7 @@ namespace EMVCard
                 _appSelector.LogMessage += (s, msg) => displayOut(0, 0, msg);
             }
 
-            _applications = _appSelector.LoadPSE();
+            _applications = await _appSelector.LoadPSEAsync();
             
             // Populate dropdown and dictionary
             cbPSE.Items.Clear();
@@ -294,7 +325,7 @@ namespace EMVCard
             }
         }
 
-        private void bLoadPPSE_Click(object sender, EventArgs e) {
+        private async void bLoadPPSE_Click(object sender, EventArgs e) {
             ClearBuffers();
             
             if (_appSelector == null)
@@ -303,7 +334,7 @@ namespace EMVCard
                 _appSelector.LogMessage += (s, msg) => displayOut(0, 0, msg);
             }
 
-            _applications = _appSelector.LoadPPSE();
+            _applications = await _appSelector.LoadPPSEAsync();
             
             // Populate dropdown and dictionary
             cbPSE.Items.Clear();
@@ -327,9 +358,9 @@ namespace EMVCard
             richTextBoxLogs.Clear();
         }
 
-        private void bReset_Click(object sender, EventArgs e) {
-            _cardReader?.Disconnect();
-            _cardReader?.Release();
+        private async void bReset_Click(object sender, EventArgs e) {
+            await _cardReader?.DisconnectAsync();
+            await _cardReader?.ReleaseAsync();
             
             // Reinitialize
             InitializeEmvComponents();
@@ -341,9 +372,9 @@ namespace EMVCard
             richTextBoxLogs.Clear();
         }
 
-        private void bQuit_Click(object sender, EventArgs e) {
-            _cardReader?.Disconnect();
-            _cardReader?.Release();
+        private async void bQuit_Click(object sender, EventArgs e) {
+            await _cardReader?.DisconnectAsync();
+            await _cardReader?.ReleaseAsync();
             System.Environment.Exit(0);
         }
 
@@ -373,7 +404,7 @@ namespace EMVCard
         /// <summary>
         /// Start polling for card reads.
         /// </summary>
-        private void btnStartPoll_Click(object sender, EventArgs e)
+        private async void btnStartPoll_Click(object sender, EventArgs e)
         {
             if (_isPolling)
             {
@@ -407,7 +438,7 @@ namespace EMVCard
             displayOut(0, 0, $"Starting polling: {_maxPolls} reads, interval: {_pollTimer.Interval}ms");
             
             // Start first read immediately
-            PerformCardRead();
+            await PerformCardReadAsync();
             
             // Start timer for subsequent reads
             _pollTimer.Start();
@@ -425,7 +456,7 @@ namespace EMVCard
         /// <summary>
         /// Timer tick event for polling.
         /// </summary>
-        private void PollTimer_Tick(object sender, EventArgs e)
+        private async void PollTimer_Tick(object sender, EventArgs e)
         {
             if (!_isPolling)
             {
@@ -440,13 +471,22 @@ namespace EMVCard
                 return;
             }
 
-            PerformCardRead();
+            await PerformCardReadAsync();
         }
 
         /// <summary>
-        /// Perform a single card read operation.
+        /// Perform a single card read operation (synchronous wrapper for backward compatibility).
         /// </summary>
         private void PerformCardRead()
+        {
+            // Call async version and wait
+            Task.Run(async () => await PerformCardReadAsync()).Wait();
+        }
+
+        /// <summary>
+        /// Perform a single card read operation asynchronously.
+        /// </summary>
+        private async Task PerformCardReadAsync()
         {
             _pollCount++;
             displayOut(0, 0, $"--- Poll {_pollCount} of {_maxPolls} ---");
@@ -454,7 +494,7 @@ namespace EMVCard
             try
             {
                 // Check/reconnect to card before each poll
-                if (!EnsureCardConnection())
+                if (!await EnsureCardConnectionAsync())
                 {
                     displayOut(0, 0, $"Poll {_pollCount}: Waiting for card...");
                     return;
@@ -467,7 +507,8 @@ namespace EMVCard
                 _currentCardData.Clear();
                 
                 // Select application
-                if (!_appSelector.SelectApplication(selectedApp.AID, out byte[] fciData))
+                var (selectSuccess, fciData) = await _appSelector.SelectApplicationAsync(selectedApp.AID);
+                if (!selectSuccess)
                 {
                     displayOut(0, 0, $"Poll {_pollCount}: Select AID Failed");
                     return;
@@ -493,7 +534,7 @@ namespace EMVCard
                 }
 
                 // Send GPO
-                bool gpoSuccess = _gpoProcessor.SendGPO(fciData, out byte[] gpoResponse);
+                var (gpoSuccess, gpoResponse) = await _gpoProcessor.SendGPOAsync(fciData);
                 
                 if (gpoSuccess)
                 {
@@ -502,34 +543,38 @@ namespace EMVCard
                     
                     if (aflList.Count > 0)
                     {
-                        _recordReader.ReadAFLRecords(aflList, _currentCardData);
+                        await _recordReader.ReadAFLRecordsAsync(aflList, _currentCardData);
                     }
                     else
                     {
-                        _recordReader.TryReadCommonRecords(_currentCardData);
+                        await _recordReader.TryReadCommonRecordsAsync(_currentCardData);
                     }
                 }
                 else
                 {
-                    _recordReader.TryReadCommonRecords(_currentCardData);
+                    await _recordReader.TryReadCommonRecordsAsync(_currentCardData);
                 }
 
                 _dataParser.ExtractFromTrack2(_currentCardData);
                 UpdateUIFromCardData();
 
                 // Generate SL Token
-                var tokenResult = _tokenGenerator.GenerateToken(_currentCardData, _currentCardData.PAN, selectedApp.AID);
+                var tokenResult = await _tokenGenerator.GenerateTokenAsync(_currentCardData, _currentCardData.PAN, selectedApp.AID);
                 
-                if (tokenResult.Success)
+                // Update UI on UI thread
+                SafeUpdateUI(() =>
                 {
-                    txtSLToken.Text = tokenResult.Token;
-                    displayOut(0, 0, $"Poll {_pollCount}: Success - PAN: {(_maskPAN ? Util.MaskPAN(_currentCardData.PAN) : _currentCardData.PAN)}");
-                }
-                else
-                {
-                    txtSLToken.Text = $"Error: {tokenResult.ErrorMessage}";
-                    displayOut(0, 0, $"Poll {_pollCount}: Token generation failed");
-                }
+                    if (tokenResult.Success)
+                    {
+                        txtSLToken.Text = tokenResult.Token;
+                        displayOut(0, 0, $"Poll {_pollCount}: Success - PAN: {(_maskPAN ? Util.MaskPAN(_currentCardData.PAN) : _currentCardData.PAN)}");
+                    }
+                    else
+                    {
+                        txtSLToken.Text = $"Error: {tokenResult.ErrorMessage}";
+                        displayOut(0, 0, $"Poll {_pollCount}: Token generation failed");
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -557,6 +602,42 @@ namespace EMVCard
 
                     // Try to connect
                     bool connected = _cardReader.Connect(cbReader.Text);
+                    if (connected)
+                    {
+                        displayOut(0, 0, "Card detected and connected");
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                displayOut(0, 0, $"Card connection check failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Ensure card is connected before reading asynchronously. Attempts reconnection if needed.
+        /// </summary>
+        /// <returns>True if card is ready, false if waiting for card</returns>
+        private async Task<bool> EnsureCardConnectionAsync()
+        {
+            try
+            {
+                // Always try to reconnect to detect card changes
+                // This will fail quickly if no card is present
+                if (!string.IsNullOrEmpty(cbReader.Text))
+                {
+                    // Disconnect first to reset state
+                    if (_cardReader.IsConnected)
+                    {
+                        await _cardReader.DisconnectAsync();
+                    }
+
+                    // Try to connect
+                    bool connected = await _cardReader.ConnectAsync(cbReader.Text);
                     if (connected)
                     {
                         displayOut(0, 0, "Card detected and connected");
