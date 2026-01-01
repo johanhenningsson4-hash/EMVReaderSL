@@ -82,7 +82,7 @@ dotnet add package EMVCard.Core
 - **System.Security.Cryptography.Algorithms** (v4.3.1) - SHA-256 hashing
 
 ### Tested Readers
-- ACR122U (contactless)
+- ACR1552 (contactless)
 - SCM SCR331 (contact)
 - Omnikey 5321 (dual interface)
 - Generic PC/SC readers
@@ -353,7 +353,7 @@ This project is licensed under the MIT License.
 
 ## ?? Version History
 
-### Version 2.0 (2024)
+### Version 2.0 (2026)
 - ? Refactored architecture (6 business logic classes)
 - ? Added SL Token generation
 - ? Enhanced TLV parsing

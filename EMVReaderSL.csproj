@@ -139,6 +139,8 @@
     <None Include="CARD_POLLING_FEATURE.md" />
     <None Include="CLEARBUFFERS_FIX.md" />
     <None Include="COMBOBOX_SELECTION_FIX.md" />
+    <None Include="Create-GitHubRelease.ps1" />
+    <None Include="GITHUB_RELEASE_COMPLETE.md" />
     <None Include="ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md" />
     <None Include="ISSUER_KEY_EXTRACTION_DOCUMENTATION.md" />
     <None Include="LICENSE_YEAR_UPDATE_2026.md" />
@@ -163,6 +165,8 @@
     <None Include="README_UPDATE_COMPLETE.md" />
     <None Include="README_UPDATE_SUMMARY.md" />
     <None Include="REFACTORING_DOCUMENTATION.md" />
+    <None Include="Release-v2.0.0\RELEASE_NOTES.md" />
+    <None Include="RELEASE_CREATION_SUMMARY.md" />
     <None Include="SL_TOKEN_FORMAT_UPDATE.md" />
     <None Include="SL_TOKEN_INTEGRATION_DOCUMENTATION.md" />
   </ItemGroup>
@@ -182,6 +186,9 @@
       <ProductName>.NET Framework 3.5</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Release-v2.0.0\README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
