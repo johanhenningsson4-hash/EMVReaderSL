@@ -148,10 +148,13 @@
     <None Include="LOGGING_DOCUMENTATION.md" />
     <None Include="NUGET_PACKAGES_CREATED.md" />
     <None Include="NUGET_PACKAGES_UPDATE_REPORT.md" />
+    <None Include="NUGET_PACKAGES_UPDATE_STATUS_2026.md" />
     <None Include="NUGET_PACKAGE_ISSUE_RESOLVED.md" />
     <None Include="NUGET_PUBLISHING_GUIDE.md" />
     <None Include="NUGET_PUBLISHING_STATUS.md" />
     <None Include="NUGET_PUBLISHING_SUCCESS_v1.0.1.md" />
+    <None Include="NUGET_RELEASE_v1.0.3_PUBLISHING_GUIDE.md" />
+    <None Include="NUGET_RELEASE_v1.0.3_SUMMARY.md" />
     <None Include="PAN_MASKING_FEATURE.md" />
     <None Include="POLLING_CONNECTION_FIX.md" />
     <None Include="POLLING_RECONNECTION_FIX.md" />
@@ -164,6 +167,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="publish-nuget.ps1" />
     <None Include="README_NUGET_VERSION_UPDATE.md" />
     <None Include="README_UPDATE_COMPLETE.md" />
     <None Include="README_UPDATE_ENHANCEMENT_2026.md" />
@@ -174,6 +178,7 @@
     <None Include="SL_TOKEN_FORMAT_UPDATE.md" />
     <None Include="SL_TOKEN_INTEGRATION_DOCUMENTATION.md" />
     <None Include="SOLUTION_SYNC_STATUS.md" />
+    <None Include="SUB_PROJECTS_NUGET_UPDATE_REPORT_2026.md" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
