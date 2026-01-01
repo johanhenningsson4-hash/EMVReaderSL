@@ -6,7 +6,8 @@ A professional Windows Forms application for reading EMV chip cards (contact and
 ![C#](https://img.shields.io/badge/C%23-7.3-green)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Status](https://img.shields.io/badge/status-active-success)
-![NuGet](https://img.shields.io/badge/NuGet-v1.0.1-blue)
+![NuGet](https://img.shields.io/badge/NuGet-v1.0.3-blue)
+![Platform](https://img.shields.io/badge/platform-x86%20%7C%20x64-lightgrey)
 
 ## ?? NuGet Packages
 
@@ -14,28 +15,28 @@ This project is available as NuGet packages for easy integration into your appli
 
 | Package | Version | Downloads | Description |
 |---------|---------|-----------|-------------|
-| [**NfcReaderLib**](https://www.nuget.org/packages/NfcReaderLib) | 1.0.1 | ![NuGet](https://img.shields.io/nuget/dt/NfcReaderLib) | PC/SC communication, SL Token generation, utilities |
-| [**EMVCard.Core**](https://www.nuget.org/packages/EMVCard.Core) | 1.0.1 | ![NuGet](https://img.shields.io/nuget/dt/EMVCard.Core) | EMV card reading, PSE/PPSE, GPO, TLV parsing |
+| [**NfcReaderLib**](https://www.nuget.org/packages/NfcReaderLib) | 1.0.3 | ![NuGet](https://img.shields.io/nuget/dt/NfcReaderLib) | PC/SC communication with 32/64-bit support, SL Token generation |
+| [**EMVCard.Core**](https://www.nuget.org/packages/EMVCard.Core) | 1.0.2 | ![NuGet](https://img.shields.io/nuget/dt/EMVCard.Core) | EMV card reading, PSE/PPSE, GPO, TLV parsing |
 
 ### Installation
 
 **Package Manager Console:**
 ```powershell
-Install-Package NfcReaderLib -Version 1.0.1
-Install-Package EMVCard.Core -Version 1.0.1
+Install-Package NfcReaderLib -Version 1.0.3
+Install-Package EMVCard.Core -Version 1.0.2
 ```
 
 **.NET CLI:**
 ```bash
-dotnet add package NfcReaderLib --version 1.0.1
-dotnet add package EMVCard.Core --version 1.0.1
+dotnet add package NfcReaderLib --version 1.0.3
+dotnet add package EMVCard.Core --version 1.0.2
 ```
 
 **PackageReference:**
 ```xml
 <ItemGroup>
-  <PackageReference Include="NfcReaderLib" Version="1.0.1" />
-  <PackageReference Include="EMVCard.Core" Version="1.0.1" />
+  <PackageReference Include="NfcReaderLib" Version="1.0.3" />
+  <PackageReference Include="EMVCard.Core" Version="1.0.2" />
 </ItemGroup>
 ```
 
@@ -44,6 +45,7 @@ dotnet add package EMVCard.Core --version 1.0.1
 ### Core Functionality
 - ?? **PC/SC Card Reader Support** - Works with any PC/SC compliant card reader
 - ?? **Contact & Contactless** - Supports both contact (chip) and contactless (NFC) cards
+- ??? **32-bit & 64-bit Support** - Automatic platform detection (x86/x64 Windows)
 - ??? **PSE/PPSE Support** - Payment System Environment enumeration for card applications
 - ?? **EMV Compliant** - Full EMV v4.3 TLV parsing and data extraction
 - ?? **SL Token Generation** - SHA-256 based secure tokens from ICC certificates
@@ -61,6 +63,7 @@ dotnet add package EMVCard.Core --version 1.0.1
 
 ### Technical Features
 - ??? **Clean Architecture** - Separated business logic from UI
+- ??? **Platform Independent** - Automatic 32-bit/64-bit detection via ModWinsCard wrapper
 - ?? **Comprehensive Logging** - Detailed APDU command/response logs
 - ?? **Auto Error Handling** - Automatic handling of common APDU errors (6C, 67, 61)
 - ?? **User-Friendly UI** - Intuitive interface with clear feedback
@@ -74,7 +77,7 @@ dotnet add package EMVCard.Core --version 1.0.1
 - EMV chip card (Visa, Mastercard, UnionPay, etc.)
 
 ### Software
-- Windows 7 or later
+- Windows 7 or later (32-bit or 64-bit)
 - .NET Framework 4.7.2 or later
 - Visual Studio 2017 or later (for development)
 
@@ -86,6 +89,12 @@ dotnet add package EMVCard.Core --version 1.0.1
 - SCM SCR331 (contact)
 - Omnikey 5321 (dual interface)
 - Generic PC/SC readers
+
+### Platform Compatibility
+- ? **32-bit Windows** (x86) - Full support via ModWinsCard32
+- ? **64-bit Windows** (x64) - Full support via ModWinsCard64
+- ? **Any CPU** - Automatic platform detection
+- ? **No configuration needed** - Platform detected at runtime
 
 ## ?? Quick Start
 
@@ -156,38 +165,52 @@ start EMVReaderSL.sln
 ### Clean Architecture Design
 
 ```
-?????????????????????????????????????????????????
-?           Presentation Layer                  ?
-?         (EMVReader.cs - WinForms)            ?
-?????????????????????????????????????????????????
+???????????????????????????????????????????
+?           Presentation Layer            ?
+?         (EMVReader.cs - WinForms)       ?
+???????????????????????????????????????????
                     ?
-?????????????????????????????????????????????????
-?          Business Logic Layer                 ?
-?????????????????????????????????????????????????
+???????????????????????????????????????????
+?          Business Logic Layer           ?
+???????????????????????????????????????????
 ?  • EmvCardReader          • EmvDataParser     ?
 ?  • EmvApplicationSelector  • EmvRecordReader  ?
 ?  • EmvGpoProcessor        • EmvTokenGenerator ?
-?????????????????????????????????????????????????
+???????????????????????????????????????????
                     ?
-?????????????????????????????????????????????????
-?         Infrastructure Layer                  ?
-?  • ModWinsCard64 (PC/SC)   • SLCard • Util    ?
-?????????????????????????????????????????????????
+???????????????????????????????????????????
+?         Infrastructure Layer            ?
+???????????????????????????????????????????
+?  • ModWinsCard (Platform Wrapper)      ?
+?    ?? ModWinsCard32 (x86)              ?
+?    ?? ModWinsCard64 (x64)              ?
+?  • SLCard • Util                        ?
+???????????????????????????????????????????
 ```
+
+### Platform Detection
+
+The library uses `IntPtr.Size` to automatically detect the platform:
+- **32-bit:** `IntPtr.Size == 4` ? Uses ModWinsCard32
+- **64-bit:** `IntPtr.Size == 8` ? Uses ModWinsCard64
+
+**No configuration needed** - it just works!
 
 ### Project Structure
 ```
 EMVReaderSLCard/
-??? EMVReader.cs              # Main UI Form (250 lines)
-??? EmvCardReader.cs          # PC/SC communication (315 lines)
-??? EmvDataParser.cs          # TLV parsing (280 lines)
-??? EmvRecordReader.cs        # Record reading (150 lines)
-??? EmvApplicationSelector.cs # PSE/PPSE handling (320 lines)
-??? EmvGpoProcessor.cs        # GPO command (200 lines)
-??? EmvTokenGenerator.cs      # SL Token generation (150 lines)
-??? SLCard.cs                 # Card model with ICC parser
-??? Util.cs                   # Utility functions
-??? ModWinsCard64.cs          # PC/SC wrapper
+?? EMVReader.cs              # Main UI Form (550 lines)
+?? EmvCardReader.cs          # PC/SC communication (315 lines)
+?? EmvDataParser.cs          # TLV parsing (280 lines)
+?? EmvRecordReader.cs        # Record reading (150 lines)
+?? EmvApplicationSelector.cs # PSE/PPSE handling (320 lines)
+?? EmvGpoProcessor.cs        # GPO command (200 lines)
+?? EmvTokenGenerator.cs      # SL Token generation (150 lines)
+?? SLCard.cs                 # Card model with ICC parser
+?? Util.cs                   # Utility functions
+?? ModWinsCard.cs            # Platform-independent wrapper
+?? ModWinsCard32.cs          # 32-bit PC/SC implementation
+?? ModWinsCard64.cs          # 64-bit PC/SC implementation
 ```
 
 ## ?? SL Token
@@ -280,6 +303,7 @@ E3 B0 C4 42 98 FC 1C 14 9A FB F4 C8 99 6F B9 24 27 AE 41 E4 64 9B 93 4C A4 95 99
 ### Version 2.0.0 (January 2026) - Current Release
 **Application Release:**
 - ??? Complete architectural refactoring with 6 business logic classes
+- ??? **Full 32-bit/64-bit platform support** via ModWinsCard wrapper
 - ?? Integrated SL Token generation
 - ? Async/await operations throughout
 - ?? Card polling feature for automated reading
@@ -289,12 +313,22 @@ E3 B0 C4 42 98 FC 1C 14 9A FB F4 C8 99 6F B9 24 27 AE 41 E4 64 9B 93 4C A4 95 99
 - ?? Complete documentation suite
 
 **NuGet Packages:**
-- ?? Published NfcReaderLib v1.0.1
-- ?? Published EMVCard.Core v1.0.1
+- ?? Published **NfcReaderLib v1.0.3** - 32/64-bit platform support
+- ?? Published **EMVCard.Core v1.0.2** - Updated dependencies
 - ?? Updated copyright to 2026
 - ?? Enhanced package documentation
 
 ### NuGet Package Releases
+
+**v1.0.3 / v1.0.2 (January 2026)**
+- ??? **Complete 32-bit/64-bit platform support**
+- ? ModWinsCard platform-independent wrapper
+- ? ModWinsCard32 for x86 systems
+- ? ModWinsCard64 for x64 systems
+- ? EmvCardReader migrated to IntPtr
+- ? Automatic platform detection
+- ? All NuGet dependencies verified up to date
+- ? No security vulnerabilities
 
 **v1.0.1 (January 2026)**
 - ?? Updated copyright year to 2026
@@ -320,12 +354,15 @@ E3 B0 C4 42 98 FC 1C 14 9A FB F4 C8 99 6F B9 24 27 AE 41 E4 64 9B 93 4C A4 95 99
 Comprehensive documentation available in the repository:
 
 - ?? [REFACTORING_DOCUMENTATION.md](REFACTORING_DOCUMENTATION.md) - Architecture details and design patterns
+- ??? [README_ModWinsCard.md](NfcReaderLib/README_ModWinsCard.md) - Platform wrapper documentation
+- ?? [MIGRATION_SUMMARY.md](NfcReaderLib/MIGRATION_SUMMARY.md) - Platform migration guide
 - ?? [ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md](ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md) - ICC certificate parsing
 - ?? [SL_TOKEN_INTEGRATION_DOCUMENTATION.md](SL_TOKEN_INTEGRATION_DOCUMENTATION.md) - Token generation guide
 - ?? [LOGGING_DOCUMENTATION.md](LOGGING_DOCUMENTATION.md) - Logging configuration and usage
 - ?? [PAN_MASKING_FEATURE.md](PAN_MASKING_FEATURE.md) - PAN masking feature details
 - ?? [CARD_POLLING_FEATURE.md](CARD_POLLING_FEATURE.md) - Polling feature documentation
 - ?? [NUGET_PACKAGES_CREATED.md](NUGET_PACKAGES_CREATED.md) - NuGet package information
+- ?? [NUGET_RELEASE_v1.0.3_SUMMARY.md](NUGET_RELEASE_v1.0.3_SUMMARY.md) - Latest release notes
 - ?? [COMBOBOX_SELECTION_FIX.md](COMBOBOX_SELECTION_FIX.md) - UI fixes
 - ?? [CLEARBUFFERS_FIX.md](CLEARBUFFERS_FIX.md) - Buffer management
 - ?? [SL_TOKEN_FORMAT_UPDATE.md](SL_TOKEN_FORMAT_UPDATE.md) - Token formatting
@@ -380,17 +417,10 @@ Future enhancements planned:
 - **Framework:** .NET Framework 4.7.2
 - **Projects:** 3 (Main app + 2 libraries)
 - **NuGet Packages:** 2 published
-- **Lines of Code:** ~2,000+
-- **Documentation Files:** 15+
+- **Platform Support:** x86 and x64 Windows
+- **Lines of Code:** ~2,500+
+- **Documentation Files:** 20+
 - **License:** MIT
 - **First Release:** 2008
 - **Current Version:** 2.0.0 (2026)
-
----
-
-**Made with ?? by Johan Henningsson** | **2008-2026**
-
-? **Star this repo if you find it useful!**
-
-[![GitHub stars](https://img.shields.io/github/stars/johanhenningsson4-hash/EMVReaderSL?style=social)](https://github.com/johanhenningsson4-hash/EMVReaderSL/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/johanhenningsson4-hash/EMVReaderSL?style=social)](https://github.com/johanhenningsson4-hash/EMVReaderSL/network/members)
+- **Latest NuGet:** NfcReaderLib 1.0.3 / EMVCard.Core 1.0.2
