@@ -143,6 +143,7 @@
     <None Include="ISSUER_KEY_EXTRACTION_DOCUMENTATION.md" />
     <None Include="LOGGING_DOCUMENTATION.md" />
     <None Include="NUGET_PACKAGES_CREATED.md" />
+    <None Include="NUGET_PACKAGES_UPDATE_REPORT.md" />
     <None Include="NUGET_PACKAGE_ISSUE_RESOLVED.md" />
     <None Include="NUGET_PUBLISHING_GUIDE.md" />
     <None Include="PAN_MASKING_FEATURE.md" />
