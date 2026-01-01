@@ -166,6 +166,7 @@
     </Compile>
     <None Include="README_NUGET_VERSION_UPDATE.md" />
     <None Include="README_UPDATE_COMPLETE.md" />
+    <None Include="README_UPDATE_ENHANCEMENT_2026.md" />
     <None Include="README_UPDATE_SUMMARY.md" />
     <None Include="REFACTORING_DOCUMENTATION.md" />
     <None Include="Release-v2.0.0\RELEASE_NOTES.md" />
