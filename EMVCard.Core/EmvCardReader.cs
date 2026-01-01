@@ -12,20 +12,20 @@ namespace EMVCard
     {
         private static readonly TraceSource _traceSource = new TraceSource("EMVCard.EmvCardReader");
 
-        private Int64 _hContext;
-        private Int64 _hCard;
+        private IntPtr _hContext;
+        private IntPtr _hCard;
         private int _protocol;
 
-        public Int64 HContext => _hContext;
-        public Int64 HCard => _hCard;
+        public IntPtr HContext => _hContext;
+        public IntPtr HCard => _hCard;
         public int Protocol => _protocol;
         public bool IsConnected { get; private set; }
 
         private byte[] _sendBuffer = new byte[263];
         private byte[] _recvBuffer = new byte[263];
-        private Int64 _sendLength;
-        private Int64 _recvLength;
-        private ModWinsCard64.SCARD_IO_REQUEST _pioSendRequest;
+        private IntPtr _sendLength;
+        private IntPtr _recvLength;
+        private ModWinsCard.SCARD_IO_REQUEST _pioSendRequest;
 
         public event EventHandler<string> LogMessage;
 
@@ -40,10 +40,10 @@ namespace EMVCard
             var readers = new List<string>();
 
             // Establish Context
-            int retCode = ModWinsCard64.SCardEstablishContext(ModWinsCard64.SCARD_SCOPE_USER, 0, 0, ref _hContext);
-            if (retCode != ModWinsCard64.SCARD_S_SUCCESS)
+            int retCode = ModWinsCard.SCardEstablishContext(ModWinsCard.SCARD_SCOPE_USER, 0, 0, ref _hContext);
+            if (retCode != ModWinsCard.SCARD_S_SUCCESS)
             {
-                string error = ModWinsCard64.GetScardErrMsg(retCode);
+                string error = ModWinsCard.GetScardErrMsg(retCode);
                 _traceSource.TraceEvent(TraceEventType.Error, 0, $"Initialize: Failed to establish context - {error}");
                 OnLogMessage(error);
                 return readers;
@@ -51,10 +51,10 @@ namespace EMVCard
 
             // Get reader list size
             int pcchReaders = 0;
-            retCode = ModWinsCard64.SCardListReaders(_hContext, null, null, ref pcchReaders);
-            if (retCode != ModWinsCard64.SCARD_S_SUCCESS)
+            retCode = ModWinsCard.SCardListReaders(_hContext, null, null, ref pcchReaders);
+            if (retCode != ModWinsCard.SCARD_S_SUCCESS)
             {
-                string error = ModWinsCard64.GetScardErrMsg(retCode);
+                string error = ModWinsCard.GetScardErrMsg(retCode);
                 _traceSource.TraceEvent(TraceEventType.Error, 0, $"Initialize: Failed to list readers - {error}");
                 OnLogMessage(error);
                 return readers;
@@ -62,10 +62,10 @@ namespace EMVCard
 
             // Get reader list
             byte[] readersList = new byte[pcchReaders];
-            retCode = ModWinsCard64.SCardListReaders(_hContext, null, readersList, ref pcchReaders);
-            if (retCode != ModWinsCard64.SCARD_S_SUCCESS)
+            retCode = ModWinsCard.SCardListReaders(_hContext, null, readersList, ref pcchReaders);
+            if (retCode != ModWinsCard.SCARD_S_SUCCESS)
             {
-                string error = ModWinsCard64.GetScardErrMsg(retCode);
+                string error = ModWinsCard.GetScardErrMsg(retCode);
                 _traceSource.TraceEvent(TraceEventType.Error, 0, $"Initialize: Failed to get reader list - {error}");
                 OnLogMessage(error);
                 return readers;
@@ -102,19 +102,19 @@ namespace EMVCard
             // Disconnect existing connection
             if (IsConnected)
             {
-                ModWinsCard64.SCardDisconnect(_hCard, ModWinsCard64.SCARD_UNPOWER_CARD);
+                ModWinsCard.SCardDisconnect(_hCard, ModWinsCard.SCARD_UNPOWER_CARD);
             }
 
             // Connect to card
-            int retCode = ModWinsCard64.SCardConnect(
+            int retCode = ModWinsCard.SCardConnect(
                 _hContext,
                 readerName,
-                ModWinsCard64.SCARD_SHARE_SHARED,
-                ModWinsCard64.SCARD_PROTOCOL_T0 | ModWinsCard64.SCARD_PROTOCOL_T1,
+                ModWinsCard.SCARD_SHARE_SHARED,
+                ModWinsCard.SCARD_PROTOCOL_T0 | ModWinsCard.SCARD_PROTOCOL_T1,
                 ref _hCard,
                 ref _protocol);
 
-            if (retCode == ModWinsCard64.SCARD_S_SUCCESS)
+            if (retCode == ModWinsCard.SCARD_S_SUCCESS)
             {
                 IsConnected = true;
                 _traceSource.TraceEvent(TraceEventType.Information, 0, $"Connect: Successfully connected to {readerName}");
@@ -127,7 +127,7 @@ namespace EMVCard
             else
             {
                 IsConnected = false;
-                string error = ModWinsCard64.GetScardErrMsg(retCode);
+                string error = ModWinsCard.GetScardErrMsg(retCode);
                 _traceSource.TraceEvent(TraceEventType.Error, 0, $"Connect: Failed - {error}");
                 OnLogMessage(error);
                 return false;
@@ -140,12 +140,12 @@ namespace EMVCard
         private void ReadATR()
         {
             byte[] atr = new byte[33];
-            long atrLen = atr.Length;
+            IntPtr atrLen = new IntPtr(atr.Length);
             int readerLen = 0;
             int state = 0;
             int protocol = Protocol;
 
-            int retCode = ModWinsCard64.SCardStatus(
+            int retCode = ModWinsCard.SCardStatus(
                 _hCard,
                 null,
                 ref readerLen,
@@ -154,14 +154,14 @@ namespace EMVCard
                 atr,
                 ref atrLen);
 
-            if (retCode == ModWinsCard64.SCARD_S_SUCCESS)
+            if (retCode == ModWinsCard.SCARD_S_SUCCESS)
             {
-                string atrStr = BitConverter.ToString(atr, 0, (int)atrLen);
+                string atrStr = BitConverter.ToString(atr, 0, atrLen.ToInt32());
                 _traceSource.TraceEvent(TraceEventType.Information, 0, $"ReadATR: {atrStr}");
                 OnLogMessage($"ATR: {atrStr}");
 
                 // Determine card type
-                if (atrLen > 0 && (atr[0] == 0x3B || atr[0] == 0x3F))
+                if (atrLen.ToInt32() > 0 && (atr[0] == 0x3B || atr[0] == 0x3F))
                 {
                     OnLogMessage("Card default working in contact mode");
                 }
@@ -172,7 +172,7 @@ namespace EMVCard
             }
             else
             {
-                string error = ModWinsCard64.GetScardErrMsg(retCode);
+                string error = ModWinsCard.GetScardErrMsg(retCode);
                 _traceSource.TraceEvent(TraceEventType.Warning, 0, $"ReadATR: Failed - {error}");
                 OnLogMessage($"Unable to read ATR: {error}");
             }
@@ -198,7 +198,7 @@ namespace EMVCard
 
             // Copy APDU to send buffer
             Array.Copy(apdu, _sendBuffer, apdu.Length);
-            _sendLength = apdu.Length;
+            _sendLength = new IntPtr(apdu.Length);
 
             // Log outgoing APDU
             string apduHex = BitConverter.ToString(apdu).Replace("-", " ");
@@ -209,8 +209,8 @@ namespace EMVCard
             _pioSendRequest.cbPciLength = 8;
 
             // Transmit
-            _recvLength = _recvBuffer.Length;
-            int retCode = ModWinsCard64.SCardTransmit(
+            _recvLength = new IntPtr(_recvBuffer.Length);
+            int retCode = ModWinsCard.SCardTransmit(
                 _hCard,
                 ref _pioSendRequest,
                 _sendBuffer,
@@ -219,17 +219,17 @@ namespace EMVCard
                 _recvBuffer,
                 ref _recvLength);
 
-            if (retCode != ModWinsCard64.SCARD_S_SUCCESS)
+            if (retCode != ModWinsCard.SCARD_S_SUCCESS)
             {
-                string error = ModWinsCard64.GetScardErrMsg(retCode);
+                string error = ModWinsCard.GetScardErrMsg(retCode);
                 _traceSource.TraceEvent(TraceEventType.Error, 0, $"SendApdu: Transmission failed - {error}");
                 OnLogMessage(error);
                 return false;
             }
 
             // Copy response
-            response = new byte[_recvLength];
-            Array.Copy(_recvBuffer, response, _recvLength);
+            response = new byte[_recvLength.ToInt32()];
+            Array.Copy(_recvBuffer, response, _recvLength.ToInt32());
 
             // Log response
             string responseHex = BitConverter.ToString(response).Replace("-", " ");
@@ -288,7 +288,7 @@ namespace EMVCard
             if (IsConnected)
             {
                 _traceSource.TraceEvent(TraceEventType.Information, 0, "Disconnect: Disconnecting from card");
-                ModWinsCard64.SCardDisconnect(_hCard, ModWinsCard64.SCARD_UNPOWER_CARD);
+                ModWinsCard.SCardDisconnect(_hCard, ModWinsCard.SCARD_UNPOWER_CARD);
                 IsConnected = false;
             }
         }
@@ -300,10 +300,10 @@ namespace EMVCard
         {
             _traceSource.TraceEvent(TraceEventType.Information, 0, "Release: Releasing PC/SC context");
             Disconnect();
-            if (_hContext != 0)
+            if (_hContext != IntPtr.Zero)
             {
-                ModWinsCard64.SCardReleaseContext(_hContext);
-                _hContext = 0;
+                ModWinsCard.SCardReleaseContext(_hContext);
+                _hContext = IntPtr.Zero;
             }
         }
 

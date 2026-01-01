@@ -172,6 +172,7 @@
     <None Include="RELEASE_CREATION_SUMMARY.md" />
     <None Include="SL_TOKEN_FORMAT_UPDATE.md" />
     <None Include="SL_TOKEN_INTEGRATION_DOCUMENTATION.md" />
+    <None Include="SOLUTION_SYNC_STATUS.md" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
