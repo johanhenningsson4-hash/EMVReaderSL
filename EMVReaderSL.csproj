@@ -140,6 +140,7 @@
     <None Include="CLEARBUFFERS_FIX.md" />
     <None Include="COMBOBOX_SELECTION_FIX.md" />
     <None Include="Create-GitHubRelease.ps1" />
+    <None Include="FINAL_README_UPDATE_2026.md" />
     <None Include="GITHUB_RELEASE_COMPLETE.md" />
     <None Include="ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md" />
     <None Include="ISSUER_KEY_EXTRACTION_DOCUMENTATION.md" />
