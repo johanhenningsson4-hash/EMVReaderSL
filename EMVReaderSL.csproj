@@ -163,6 +163,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="README_NUGET_VERSION_UPDATE.md" />
     <None Include="README_UPDATE_COMPLETE.md" />
     <None Include="README_UPDATE_SUMMARY.md" />
     <None Include="REFACTORING_DOCUMENTATION.md" />
