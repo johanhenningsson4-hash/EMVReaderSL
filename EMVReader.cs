@@ -118,7 +118,7 @@ namespace EMVCard
                 case 0:
                     break;
                 case 1:
-                    PrintText = ModWinsCard64.GetScardErrMsg(retVal);
+                    PrintText = ModWinsCard.GetScardErrMsg(retVal);
                     break;
                 case 2:
                     PrintText = "<" + PrintText;
