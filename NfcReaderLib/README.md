@@ -1,150 +1,161 @@
-# EMV Card Reader with SL Token Generation
+# NfcReaderLib
 
-A professional Windows Forms application for reading EMV chip cards (contact and contactless) using PC/SC readers, with integrated SL (Secure Link) Token generation based on ICC Public Key Certificates.
+Low-level NFC/Smart card utilities library providing PC/SC communication, SL Token generation, and utility functions for card data processing.
 
 ![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2-blue)
-![C#](https://img.shields.io/badge/C%23-7.3-green)
+![NuGet](https://img.shields.io/nuget/v/NfcReaderLib)
 ![License](https://img.shields.io/badge/license-MIT-blue)
-![Status](https://img.shields.io/badge/status-active-success)
 
-## ?? Features
+## ?? Installation
+
+### Package Manager Console
+```powershell
+Install-Package NfcReaderLib
+```
+
+### .NET CLI
+```bash
+dotnet add package NfcReaderLib
+```
+
+### PackageReference
+```xml
+<PackageReference Include="NfcReaderLib" Version="1.0.0" />
+```
+
+## ?? Target Framework
+
+- **.NET Framework 4.7.2**
+
+Compatible with:
+- .NET Framework 4.7.2+
+- .NET Standard 2.0+
+- .NET Core 2.0+
+- .NET 5+
+
+## ? Features
 
 ### Core Functionality
-- ? **PC/SC Card Reader Support** - Works with any PC/SC compliant card reader
-- ? **Contact & Contactless** - Supports both contact (chip) and contactless (NFC) cards
-- ? **PSE/PPSE Support** - Payment System Environment enumeration for card applications
-- ? **EMV Compliant** - Full EMV v4.3 TLV parsing and data extraction
-- ? **SL Token Generation** - SHA-256 based secure tokens from ICC certificates
-- ? **Multi-Application Cards** - Handles cards with multiple payment applications
-
-### Data Extraction
-- ?? **Card Number (PAN)** - Primary Account Number
-- ?? **Expiry Date** - Card expiration information
-- ?? **Cardholder Name** - Name embossed on card
-- ?? **Track 2 Data** - Magnetic stripe equivalent data
-- ?? **ICC Certificate** - ICC Public Key Certificate (Tag 9F46)
-- ?? **SL Token** - Unique card identifier (SHA-256 hash of ICC cert)
-
-### Technical Features
-- ??? **Clean Architecture** - Separated business logic from UI
-- ?? **Comprehensive Logging** - Detailed APDU command/response logs
-- ?? **Auto Error Handling** - Automatic handling of common APDU errors (6C, 67, 61)
-- ?? **User-Friendly UI** - Intuitive interface with clear feedback
-- ?? **Testable Design** - Business logic classes can be unit tested
-
-## ?? Requirements
-
-### Hardware
-- PC/SC compatible smart card reader (contact or contactless)
-- EMV chip card (Visa, Mastercard, UnionPay, etc.)
-
-### Software
-- Windows 7 or later
-- .NET Framework 4.7.2 or later
-- Visual Studio 2017 or later (for development)
-
-### Tested Readers
-- ACR122U (contactless)
-- SCM SCR331 (contact)
-- Omnikey 5321 (dual interface)
-- Generic PC/SC readers
-
 - ?? **PC/SC Communication** - Low-level smart card reader communication
 - ?? **SL Token Generation** - SHA-256 based secure tokens from ICC certificates
-- ??? **Card Utilities** - Helper functions for card data processing
+- ?? **Card Utilities** - Helper functions for card data processing
 - ?? **Data Formatting** - Byte array and hex string conversions
-- ?? **TLV Parsing Support** - Tag-Length-Value structure handling
+- ??? **TLV Support** - Tag-Length-Value structure handling
 
 ## ?? Quick Start
 
-### From Source
-1. Clone the repository:
-```bash
-git clone https://github.com/johanhenningsson4-hash/EMVReaderSL.git
-cd EMVReaderSLCard
-```
+```csharp
+using NfcReaderLib;
 
-2. Open in Visual Studio:
-```bash
-start EMVReaderSL.sln
-```
-
-3. Build and run (F5)
-
-### Basic Usage
-
-1. **Initialize Reader** ? Click "Initialize" ? Select reader ? Click "Connect Card"
-2. **Load Applications** ? Click "Load PSE" (contact) or "Load PPSE" (contactless)
-3. **Read Card Data** ? Select application ? Click "ReadApp"
-4. **View Results** ? Card data and SL Token displayed automatically
-
-## ??? Architecture
-
-### Clean Architecture Design
+// Convert hex string to byte array
+byte[] data = Util.FromHexString("9F 46 01 02 03");
 
 // Generate SL Token from ICC certificate
-byte[] iccCert = GetIccCertificate(); // Tag 9F46
-string slToken = SLCard.GenerateToken(iccCert);
+var slCard = new SLCard
+{
+    PAN = "1234567890123456",
+    AID = "A0000000031010",
+    IccPublicKeyCertificate = iccCertData
+};
+string token = slCard.GetSLToken2();
 
-// Output: "E3 B0 C4 42 98 FC 1C 14..." (SHA-256 hash)
-```
-????????????????????????????????????????????????
-?           Presentation Layer                 ?
-?         (EMVReader.cs - WinForms)           ?
-????????????????????????????????????????????????
-                    ?
-????????????????????????????????????????????????
-?          Business Logic Layer                ?
-????????????????????????????????????????????????
-?  • EmvCardReader         • EmvDataParser     ?
-?  • EmvApplicationSelector • EmvRecordReader  ?
-?  • EmvGpoProcessor       • EmvTokenGenerator ?
-????????????????????????????????????????????????
-                    ?
-????????????????????????????????????????????????
-?         Infrastructure Layer                 ?
-?  • ModWinsCard64 (PC/SC)  • SLCard • Util    ?
-????????????????????????????????????????????????
+// Format card number
+string masked = Util.MaskPAN("1234567890123456");
+// Output: "1234 56** **** 3456"
+
+// Calculate SHA-256 hash
+byte[] hash = Util.CalculateSHA1(data); // Despite name, uses SHA-256
 ```
 
-### Project Structure
-```
-EMVReaderSLCard/
-??? EMVReader.cs              # Main UI Form (250 lines)
-??? EmvCardReader.cs          # PC/SC communication (315 lines)
-??? EmvDataParser.cs          # TLV parsing (280 lines)
-??? EmvRecordReader.cs        # Record reading (150 lines)
-??? EmvApplicationSelector.cs # PSE/PPSE handling (320 lines)
-??? EmvGpoProcessor.cs        # GPO command (200 lines)
-??? EmvTokenGenerator.cs      # SL Token generation (150 lines)
-??? SLCard.cs                 # Card model with ICC parser
-??? Util.cs                   # Utility functions
-??? ModWinsCard64.cs          # PC/SC wrapper
-```
+## ?? Main Classes
 
-## ?? SL Token
-
-### What is it?
-
-**Key Methods:**
-- `GenerateToken(byte[] iccCertificate)` - Generate SL Token from ICC cert
-- `ParseIccCertificate(byte[] data)` - Parse ICC public key certificate
+### SLCard
+**Purpose:** Card model with ICC certificate parsing and SL Token generation
 
 **Properties:**
-- `CardNumber` - Primary Account Number (PAN)
-- `ExpiryDate` - Card expiration date
-- `CardholderName` - Name on card
-- `IccCertificate` - ICC Public Key Certificate (Tag 9F46)
-- `SlToken` - Generated secure link token
+- `PAN` - Primary Account Number
+- `AID` - Application Identifier
+- `IccPublicKeyCertificate` - ICC certificate data (Tag 9F46)
+- `IccPublicKeyExponent` - ICC exponent (Tag 9F47)
+- `IccPublicKeyRemainder` - ICC remainder (Tag 9F48)
 
-### Util Class
+**Methods:**
+- `GetSLToken2()` - Generate SHA-256 based SL Token (space-separated hex format)
+- `ParseIccCertificate(byte[] data)` - Parse multi-line ICC certificate format
+
+**Example:**
+```csharp
+var slCard = new SLCard
+{
+    PAN = "1234567890123456",
+    AID = "A0000000031010",
+    IccPublicKeyCertificate = certificateBytes
+};
+
+string token = slCard.GetSLToken2();
+// Output: "E3 B0 C4 42 98 FC 1C 14 9A FB ... 52 B8 55" (64 hex bytes, space-separated)
+```
+
+### Util
 **Purpose:** Utility functions for data conversion and formatting
 
 **Key Methods:**
-- `HexStringToByteArray(string hex)` - Convert hex to bytes
-- `ByteArrayToHexString(byte[] bytes)` - Convert bytes to hex
-- `FormatCardNumber(string pan)` - Format PAN with spaces
-- `FormatExpiryDate(string date)` - Format expiry as MM/YY
+
+**Hex Conversions:**
+- `FromHexString(string hex)` - Convert hex string to byte array
+  ```csharp
+  byte[] data = Util.FromHexString("9F 46 01 02");
+  ```
+- `ByteArrayToHexString(byte[] bytes)` - Convert byte array to hex string
+  ```csharp
+  string hex = Util.ByteArrayToHexString(data); // "9F460102"
+  ```
+- `PrettyPrintHex(byte[] data)` - Format as space-separated hex
+  ```csharp
+  string pretty = Util.PrettyPrintHex(data); // "9F 46 01 02"
+  ```
+
+**PAN Masking:**
+- `MaskPAN(string pan)` - Mask card number for privacy
+  ```csharp
+  string masked = Util.MaskPAN("1234567890123456");
+  // Output: "1234 56** **** 3456"
+  ```
+- `MaskCardNumber(string cardNumber, string mask)` - Custom masking
+  ```csharp
+  string masked = Util.MaskCardNumber("1234567890123456", "####-##xx-xxxx-####");
+  // Output: "1234-56xx-xxxx-3456"
+  ```
+
+**Cryptography:**
+- `CalculateSHA1(byte[] data)` - SHA-256 hash (note: method name is legacy)
+  ```csharp
+  byte[] hash = Util.CalculateSHA1(certificateData);
+  ```
+
+**Data Conversion:**
+- `ByteToInt(byte b)` - Convert byte to integer
+- `ByteToInt(byte first, byte second)` - Convert two bytes to integer
+- `Byte2Short(byte b1, byte b2)` - Convert two bytes to short
+- `HexToAscii(string hexStr)` - Convert hex string to ASCII
+- `NotEmpty(byte[] bytearray)` - Check if array has data
+
+**String Utilities:**
+- `GetSpaces(int length)` - Generate spacing string
+
+### ModWinsCard64
+**Purpose:** PC/SC (Personal Computer/Smart Card) wrapper for Windows
+
+**Key Methods:**
+- PC/SC context management
+- Card reader enumeration
+- APDU command transmission
+- ATR (Answer To Reset) reading
+
+**Status Word Handling:**
+- `GetScardErrMsg(int retCode)` - Get error message for PC/SC return code
+
+**Note:** This is a low-level class typically used through higher-level wrappers.
 
 ## ?? SL Token Details
 
@@ -152,193 +163,135 @@ EMVReaderSLCard/
 
 The **SL (Secure Link) Token** is a unique cryptographic identifier derived from the card's ICC Public Key Certificate using SHA-256 hashing.
 
-### How it works
+### How It Works
 
 ```
-ICC Certificate (Tag 9F46) ? SHA-256 Hash ? Hex String ? SL Token
+ICC Certificate (Tag 9F46) ? SHA-256 Hash ? Space-Separated Hex ? SL Token
 ```
 
-**Example Output:**
+**Example:**
 ```
-E3 B0 C4 42 98 FC 1C 14 9A FB F4 C8 99 6F B9 24 27 AE 41 E4 64 9B 93 4C A4 95 99 1B 78 52 B8 55
+Input:  ICC Certificate (128-248 bytes)
+Output: "E3 B0 C4 42 98 FC 1C 14 9A FB F4 C8 99 6F B9 24 27 AE 41 E4 64 9B 93 4C A4 95 99 1B 78 52 B8 55"
 ```
 
 ### Properties
 
-? **Unique** - Each card generates unique token  
-? **Consistent** - Same card = same token  
+? **Unique** - Each card generates a unique token  
+? **Consistent** - Same card always produces the same token  
 ? **Secure** - One-way hash, cannot be reversed  
 ? **Privacy-Friendly** - No PAN or sensitive data exposed  
-? **Format** - Space-separated hex (95 characters)  
+? **Format** - 64 bytes as space-separated hex (191 characters)  
 
 ### Use Cases
 
 - ?? Loyalty program card identification
 - ?? Card binding to user accounts
 - ?? Transaction correlation
-- ? Duplicate card detection
+- ?? Duplicate card detection
 - ?? Analytics without storing sensitive data
 
-## ?? Key Classes
+## ??? Advanced Usage
 
-### EmvCardReader
-**Purpose:** PC/SC card reader communication
+### Multi-Line ICC Certificate Parsing
 
-**Methods:**
-- `Initialize()` - Detect card readers
-- `Connect(readerName)` - Connect to card
-- `SendApduWithAutoFix()` - Send APDU with auto-retry
-- `Disconnect()` / `Release()` - Cleanup
+The SLCard class handles multi-line certificate formats automatically:
 
-### EmvDataParser
-**Purpose:** TLV parsing and data extraction
+```csharp
+string certData = @"Cert: 9F4681...
+Exp: 03
+Rem: 12345...";
 
-**Methods:**
-- `ParseTLV()` - Parse EMV TLV structures
-- `ParseAFL()` - Extract Application File Locator
-- `ExtractFromTrack2()` - Extract missing data from Track2
+var slCard = new SLCard
+{
+    PAN = "1234567890123456",
+    AID = "A0000000031010"
+};
 
-**Supported Tags:**
-- `5A` - PAN (Card Number)
-- `5F24` - Expiry Date
-- `5F20` - Cardholder Name
-- `57` - Track 2 Data
-- `9F46/47/48` - ICC Certificate/Exponent/Remainder
+// Parse multi-line format
+string[] lines = certData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+foreach (string line in lines)
+{
+    if (line.StartsWith("Cert:"))
+        slCard.IccPublicKeyCertificate = Util.FromHexString(line.Substring(5));
+    else if (line.StartsWith("Exp:"))
+        slCard.IccPublicKeyExponent = Util.FromHexString(line.Substring(4));
+    else if (line.StartsWith("Rem:"))
+        slCard.IccPublicKeyRemainder = Util.FromHexString(line.Substring(4));
+}
 
-### EmvTokenGenerator
-**Purpose:** SL Token generation
+string token = slCard.GetSLToken2();
+```
 
-**Methods:**
-- `GenerateToken(cardData, pan, aid)` - Generate from card data
-- `GenerateTokenFromCertificate(certificate)` - Generate from cert bytes
+### Custom Hex Formatting
 
-**Returns:** `TokenResult` with `Success`, `Token`, or `ErrorMessage`
+```csharp
+byte[] data = new byte[] { 0x9F, 0x46, 0x01, 0x02 };
 
-## ??? EMV Tags Reference
+// Standard hex string (no spaces)
+string standard = Util.ByteArrayToHexString(data); // "9F460102"
 
-| Tag | Name | Description |
-|-----|------|-------------|
-| `5A` | Application PAN | Card number |
-| `5F24` | Expiration Date | YYMMDD format |
-| `5F20` | Cardholder Name | Name on card |
-| `57` | Track 2 Equivalent | Magnetic data |
-| `9F46` | ICC Public Key Cert | For DDA/CDA |
-| `9F47` | ICC PK Exponent | Usually 03 |
-| `9F48` | ICC PK Remainder | Extra modulus |
-| `9F38` | PDOL | Processing options |
-| `94` | AFL | File locator |
+// Pretty print (with spaces)
+string pretty = Util.PrettyPrintHex(data); // "9F 46 01 02"
 
-## ?? Troubleshooting
+// Parse back
+byte[] parsed = Util.FromHexString(pretty);
+```
 
-### No Card Readers Found
-1. Check USB connection
-2. Install reader drivers
-3. Restart PC/SC service: `net stop SCardSvr && net start SCardSvr`
+### PAN Masking Patterns
 
-### No Applications Found
-1. Try both PSE and PPSE
-2. Card may not support PSE
-3. Check APDU logs for errors (`6A 82` = File not found)
+```csharp
+// Standard masking (first 6 + last 4)
+string pan1 = Util.MaskPAN("1234567890123456"); 
+// "1234 56** **** 3456"
 
-### SL Token Error
-1. Verify card supports DDA/CDA (has Tag 9F46)
-2. Some cards only support SDA (no ICC cert)
-3. Check logs for "ICC Public Key Certificate"
+// Custom masking
+string pan2 = Util.MaskCardNumber("1234567890123456", "####-####-####-####");
+// "1234-5678-9012-3456"
 
-### Common Status Words
+string pan3 = Util.MaskCardNumber("1234567890123456", "####-##xx-xxxx-####");
+// "1234-56xx-xxxx-3456"
+```
 
-| SW | Meaning | Auto-Handled |
-|----|---------|--------------|
-| `90 00` | Success | - |
-| `6C XX` | Wrong Le | ? Yes |
-| `67 00` | Wrong length | ? Yes |
-| `61 XX` | More data | ? Yes |
-| `6A 82` | File not found | ? No |
-| `6A 83` | Record not found | ? No |
+## ?? Dependencies
+
+- **System.Security.Cryptography.Algorithms** (v4.3.1) - SHA-256 hashing
+
+## ?? Requirements
+
+- .NET Framework 4.7.2 or later
+- Windows 7 or later (for PC/SC support)
 
 ## ?? Documentation
 
-Comprehensive documentation available in the repository:
+For complete documentation and usage examples, visit:
+- [GitHub Repository](https://github.com/johanhenningsson4-hash/EMVReaderSL)
+- [NuGet Package](https://www.nuget.org/packages/NfcReaderLib)
 
-- ?? [REFACTORING_DOCUMENTATION.md](REFACTORING_DOCUMENTATION.md) - Architecture details
-- ?? [ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md](ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md) - ICC parsing
-- ?? [SL_TOKEN_INTEGRATION_DOCUMENTATION.md](SL_TOKEN_INTEGRATION_DOCUMENTATION.md) - Token generation
-- ?? [COMBOBOX_SELECTION_FIX.md](COMBOBOX_SELECTION_FIX.md) - UI fixes
-- ?? [CLEARBUFFERS_FIX.md](CLEARBUFFERS_FIX.md) - Buffer management
-- ?? [SL_TOKEN_FORMAT_UPDATE.md](SL_TOKEN_FORMAT_UPDATE.md) - Token formatting
+## ?? Related Packages
 
-## ??? Development
-
-### Building
-
-```bash
-# Clone repository
-git clone https://github.com/johanhenningsson4-hash/EMVReaderSL.git
-cd EMVReaderSLCard
-
-# Build
-msbuild EMVReaderSL.sln /p:Configuration=Release
-```
-
-### Code Style
-- **Naming:** PascalCase for public, _camelCase for private
-- **Logging:** TraceSource for all classes
-- **Error Handling:** Try-catch with specific messages
-- **Documentation:** XML docs for public members
-
-## ?? Contributing
-
-Contributions welcome! Please:
-
-1. Fork the repository
-2. Create feature branch
-3. Commit changes
-4. Push and create Pull Request
+- **EMVCard.Core** - High-level EMV card reading library (depends on NfcReaderLib)
 
 ## ?? License
 
-Copyright (C) Johan Henningsson
+Copyright © Johan Henningsson 2026
 
 This project is licensed under the MIT License.
 
-## ?? Acknowledgments
-
-- EMV specifications by EMVCo
-- PC/SC Workgroup
-- Original EMVReader by Eternal TUTU (2008)
-
-## ?? Contact
+## ?? Author
 
 **Johan Henningsson**
 - GitHub: [@johanhenningsson4-hash](https://github.com/johanhenningsson4-hash)
 - Repository: [EMVReaderSL](https://github.com/johanhenningsson4-hash/EMVReaderSL)
 
-## ?? Version History
+## ?? Acknowledgments
 
-### Version 2.0 (2024)
-- ? Refactored architecture (6 business logic classes)
-- ? Added SL Token generation
-- ? Enhanced TLV parsing
-- ? Comprehensive logging
-- ?? Fixed UI selection issues
-- ?? Complete documentation
-
-### Version 1.0 (2008)
-- Initial EMV card reader
-- Basic PSE support
-- TLV parsing
-
-## ??? Roadmap
-
-- [ ] Async/await operations
-- [ ] Export to JSON/XML
-- [ ] Configuration file
-- [ ] DDA/CDA verification
-- [ ] Multiple languages
-- [ ] Web API integration
+- EMV specifications by EMVCo
+- PC/SC Workgroup
+- .NET Cryptography API
 
 ---
 
-**Made with ?? by Johan Henningsson** | **2008-2024**
+**Made with ?? by Johan Henningsson** | **2008-2026**
 
-? **Star this repo if you find it useful!**
+? **Star this package on GitHub if you find it useful!**
