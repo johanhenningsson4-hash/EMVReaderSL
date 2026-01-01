@@ -14,28 +14,28 @@ This project is available as NuGet packages for easy integration into your appli
 
 | Package | Version | Downloads | Description |
 |---------|---------|-----------|-------------|
-| [**NfcReaderLib**](https://www.nuget.org/packages/NfcReaderLib) | 1.0.0 | ![NuGet](https://img.shields.io/nuget/dt/NfcReaderLib) | PC/SC communication, SL Token generation, utilities |
-| [**EMVCard.Core**](https://www.nuget.org/packages/EMVCard.Core) | 1.0.0 | ![NuGet](https://img.shields.io/nuget/dt/EMVCard.Core) | EMV card reading, PSE/PPSE, GPO, TLV parsing |
+| [**NfcReaderLib**](https://www.nuget.org/packages/NfcReaderLib) | 1.0.1 | ![NuGet](https://img.shields.io/nuget/dt/NfcReaderLib) | PC/SC communication, SL Token generation, utilities |
+| [**EMVCard.Core**](https://www.nuget.org/packages/EMVCard.Core) | 1.0.1 | ![NuGet](https://img.shields.io/nuget/dt/EMVCard.Core) | EMV card reading, PSE/PPSE, GPO, TLV parsing |
 
 ### Installation
 
 **Package Manager Console:**
 ```powershell
-Install-Package NfcReaderLib
-Install-Package EMVCard.Core
+Install-Package NfcReaderLib -Version 1.0.1
+Install-Package EMVCard.Core -Version 1.0.1
 ```
 
 **.NET CLI:**
 ```bash
-dotnet add package NfcReaderLib
-dotnet add package EMVCard.Core
+dotnet add package NfcReaderLib --version 1.0.1
+dotnet add package EMVCard.Core --version 1.0.1
 ```
 
 **PackageReference:**
 ```xml
 <ItemGroup>
-  <PackageReference Include="NfcReaderLib" Version="1.0.0" />
-  <PackageReference Include="EMVCard.Core" Version="1.0.0" />
+  <PackageReference Include="NfcReaderLib" Version="1.0.1" />
+  <PackageReference Include="EMVCard.Core" Version="1.0.1" />
 </ItemGroup>
 ```
 
@@ -354,12 +354,13 @@ This project is licensed under the MIT License.
 ## ?? Version History
 
 ### Version 2.0 (2026)
-- ? Refactored architecture (6 business logic classes)
-- ? Added SL Token generation
-- ? Enhanced TLV parsing
-- ? Comprehensive logging
+- ??? Refactored architecture (6 business logic classes)
+- ?? Added SL Token generation
+- ?? Enhanced TLV parsing
+- ?? Comprehensive logging
 - ?? Fixed UI selection issues
 - ?? Complete documentation
+- ?? Published NuGet packages v1.0.1 with 2026 copyright
 
 ### Version 1.0 (2008)
 - Initial EMV card reader

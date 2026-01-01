@@ -10,17 +10,17 @@ Low-level NFC/Smart card utilities library providing PC/SC communication, SL Tok
 
 ### Package Manager Console
 ```powershell
-Install-Package NfcReaderLib
+Install-Package NfcReaderLib -Version 1.0.1
 ```
 
 ### .NET CLI
 ```bash
-dotnet add package NfcReaderLib
+dotnet add package NfcReaderLib --version 1.0.1
 ```
 
 ### PackageReference
 ```xml
-<PackageReference Include="NfcReaderLib" Version="1.0.0" />
+<PackageReference Include="NfcReaderLib" Version="1.0.1" />
 ```
 
 ## ?? Target Framework

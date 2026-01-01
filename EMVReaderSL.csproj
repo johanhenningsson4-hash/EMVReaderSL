@@ -150,6 +150,7 @@
     <None Include="NUGET_PACKAGE_ISSUE_RESOLVED.md" />
     <None Include="NUGET_PUBLISHING_GUIDE.md" />
     <None Include="NUGET_PUBLISHING_STATUS.md" />
+    <None Include="NUGET_PUBLISHING_SUCCESS_v1.0.1.md" />
     <None Include="PAN_MASKING_FEATURE.md" />
     <None Include="POLLING_CONNECTION_FIX.md" />
     <None Include="POLLING_RECONNECTION_FIX.md" />

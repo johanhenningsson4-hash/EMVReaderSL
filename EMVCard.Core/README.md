@@ -10,17 +10,17 @@ High-level EMV chip card reading library with support for PSE/PPSE application s
 
 ### Package Manager Console
 ```powershell
-Install-Package EMVCard.Core
+Install-Package EMVCard.Core -Version 1.0.1
 ```
 
 ### .NET CLI
 ```bash
-dotnet add package EMVCard.Core
+dotnet add package EMVCard.Core --version 1.0.1
 ```
 
 ### PackageReference
 ```xml
-<PackageReference Include="EMVCard.Core" Version="1.0.0" />
+<PackageReference Include="EMVCard.Core" Version="1.0.1" />
 ```
 
 ## ?? Target Framework
@@ -449,7 +449,7 @@ tokenGenerator.LogMessage += logHandler;
 
 ## ?? Dependencies
 
-- **NfcReaderLib** (v1.0.0) - PC/SC communication and utilities
+- **NfcReaderLib** (v1.0.1) - PC/SC communication and utilities
 
 ## ?? Requirements
 
