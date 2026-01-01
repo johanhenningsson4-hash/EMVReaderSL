@@ -6,19 +6,19 @@
     <AssemblyName>EMVCard.Core</AssemblyName>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>EMVCard.Core</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Johan Henningsson</Authors>
     <Company>Johan Henningsson</Company>
     <Product>EMV Card Reader Core</Product>
-    <Description>EMV chip card reading library with support for PSE/PPSE application selection, GPO processing, record reading, TLV parsing, and SL Token generation. Works with contact and contactless EMV cards via PC/SC readers. Updated for 2026 release with improved documentation and copyright.</Description>
-    <PackageTags>emv;chipcard;pcsc;pse;ppse;gpo;afl;tlv;sl-token;visa;mastercard</PackageTags>
+    <Description>EMV chip card reading library with support for PSE/PPSE application selection, GPO processing, record reading, TLV parsing, and SL Token generation. Works with contact and contactless EMV cards via PC/SC readers. Updated for 2026 release with improved documentation and copyright. Now supports both 32-bit and 64-bit Windows systems through NfcReaderLib 1.0.3.</Description>
+    <PackageTags>emv;chipcard;pcsc;pse;ppse;gpo;afl;tlv;sl-token;visa;mastercard;32bit;64bit</PackageTags>
     <PackageProjectUrl>https://github.com/johanhenningsson4-hash/EMVReaderSL</PackageProjectUrl>
     <RepositoryUrl>https://github.com/johanhenningsson4-hash/EMVReaderSL</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright © Johan Henningsson 2026</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>v1.0.1 - Updated copyright to 2026, improved documentation, depends on NfcReaderLib 1.0.1, no functional changes.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.0.2 - Updated to depend on NfcReaderLib 1.0.3 with complete 32-bit/64-bit platform support. Now works seamlessly on both x86 and x64 Windows systems. All NuGet dependencies verified up to date with no security vulnerabilities. Enhanced documentation and improved platform compatibility.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

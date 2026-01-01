@@ -6,7 +6,7 @@
     <AssemblyName>NfcReaderLib</AssemblyName>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>NfcReaderLib</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>Johan Henningsson</Authors>
     <Company>Johan Henningsson</Company>
     <Product>NFC Reader Library</Product>
@@ -16,9 +16,9 @@
     <RepositoryUrl>https://github.com/johanhenningsson4-hash/EMVReaderSL</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Copyright � Johan Henningsson 2026</Copyright>
+    <Copyright>Copyright © Johan Henningsson 2026</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>v1.0.2 - Added platform-independent wrapper (ModWinsCard) for automatic 32-bit/64-bit detection. Migrated EmvCardReader to use IntPtr for cross-platform compatibility. Includes ModWinsCard, ModWinsCard32, and ModWinsCard64 implementations. Updated documentation with migration guide and NuGet publishing workflow.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.0.3 - Complete 32-bit/64-bit platform support. Includes ModWinsCard platform-independent wrapper, ModWinsCard32 for 32-bit systems, and ModWinsCard64 for 64-bit systems. EmvCardReader migrated to IntPtr for full cross-platform compatibility. All PC/SC operations now work seamlessly on both x86 and x64 Windows. Verified all NuGet dependencies up to date with no security vulnerabilities.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
