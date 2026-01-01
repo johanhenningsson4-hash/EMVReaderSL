@@ -46,9 +46,10 @@ namespace NfcReaderLib
                     return BitConverter.ToString(encodedHash).Replace("-", "");
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                // Log error if needed
+                _traceSource.TraceEvent(TraceEventType.Error, 0,
+    $"ParseIccPublicKey: Exception - {ex.GetType().Name}: {ex.Message}");
                 return "";
             }
         }
@@ -63,9 +64,10 @@ namespace NfcReaderLib
                     return BitConverter.ToString(encodedHash).Replace("-", " ");
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                // Log error if needed
+                _traceSource.TraceEvent(TraceEventType.Error, 0,
+    $"ParseIccPublicKey: Exception - {ex.GetType().Name}: {ex.Message}");
                 return "";
             }
         }
