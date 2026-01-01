@@ -82,7 +82,7 @@ dotnet add package EMVCard.Core --version 1.0.1
 - **System.Security.Cryptography.Algorithms** (v4.3.1) - SHA-256 hashing
 
 ### Tested Readers
-- ACR1552 (contactless)
+- ACR122U (contactless)
 - SCM SCR331 (contact)
 - Omnikey 5321 (dual interface)
 - Generic PC/SC readers
@@ -209,4 +209,188 @@ E3 B0 C4 42 98 FC 1C 14 9A FB F4 C8 99 6F B9 24 27 AE 41 E4 64 9B 93 4C A4 95 99
 
 ### Properties
 
-? **Uniqu
+? **Unique:** One-of-a-kind for each card
+? **Persistent:** Remains consistent across sessions
+? **Secure:** Derived from cryptographic certificate
+? **Non-reversible:** Cannot be converted back to ICC certificate
+
+### Troubleshooting SL Token Issues
+
+- **Common Issues:**
+  - Token not generating
+  - Invalid token format
+  - Token changes with each read
+
+- **Solutions:**
+  - Ensure ICC certificate is present and valid
+  - Check SHA-256 implementation
+  - Verify buffer management in code
+  - Consult [Logging Documentation](LOGGING_DOCUMENTATION.md) for APDU level debugging
+
+## ??? Troubleshooting
+
+### Common Issues
+
+- **Card Not Detected:**
+  - Ensure card is properly inserted/held near reader
+  - Check reader connections and driver installation
+  - Restart the application and try again
+
+- **APDU Errors:**
+  - Refer to [EMVCo Declined Transactions](https://www.emvco.com) for error code meanings
+  - Common errors:
+    - `6A82`: Inconsistent attributes
+    - `6A84`: Requested data not available
+    - `6282`: Encryption not successful
+
+- **SL Token Issues:**
+  - Ensure SL Token generation code is called after successful card data read
+  - Validate ICC certificate presence (Tag 9F46)
+  - Check SHA-256 hash implementation
+
+- **Buffer Related Issues:**
+  - Increase buffer size in code/configuration
+  - Monitor buffer usage to prevent overflows
+
+- **GUI Freezing:**
+  - Ensure all card operations are awaited properly
+  - Offload heavy processing from UI thread
+
+### Debugging Tips
+
+1. **Enable Detailed Logging**
+   - Set log level to `Debug` or `Trace`
+   - Reproduce the issue
+   - Check logs for anomalies
+
+2. **Use Test Cards**
+   - For consistent results, use test cards with known data
+
+3. **Consult Documentation**
+   - Refer to individual class/method documentation for usage details
+
+4. **Clean and Rebuild Solution**
+   - Often resolves missing references or outdated binaries
+
+5. **Inspect NuGet Package Contents**
+   - Ensure all required files are included in the package
+
+## ?? Version History
+
+### Version 2.0.0 (January 2026) - Current Release
+**Application Release:**
+- ??? Complete architectural refactoring with 6 business logic classes
+- ?? Integrated SL Token generation
+- ? Async/await operations throughout
+- ?? Card polling feature for automated reading
+- ?? PAN masking for privacy compliance
+- ?? Comprehensive logging with TraceSource
+- ?? Fixed UI selection issues and buffer management
+- ?? Complete documentation suite
+
+**NuGet Packages:**
+- ?? Published NfcReaderLib v1.0.1
+- ?? Published EMVCard.Core v1.0.1
+- ?? Updated copyright to 2026
+- ?? Enhanced package documentation
+
+### NuGet Package Releases
+
+**v1.0.1 (January 2026)**
+- ?? Updated copyright year to 2026
+- ?? Improved package descriptions and documentation
+- ?? Added comprehensive release notes
+- ?? No functional code changes (documentation release)
+
+**v1.0.0 (2025)**
+- ?? Initial NuGet package release
+- ?? Core EMV card reading functionality
+- ?? SL Token generation from ICC certificates
+- ?? PC/SC smart card reader communication
+- ?? EMV TLV parsing and data extraction
+
+### Version 1.0 (2008) - Original Release
+- ?? Initial EMV card reader implementation
+- ??? Basic PSE support for contact cards
+- ?? TLV parsing for EMV tags
+- ?? Original work by Eternal TUTU
+
+## ?? Documentation
+
+Comprehensive documentation available in the repository:
+
+- ?? [REFACTORING_DOCUMENTATION.md](REFACTORING_DOCUMENTATION.md) - Architecture details and design patterns
+- ?? [ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md](ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md) - ICC certificate parsing
+- ?? [SL_TOKEN_INTEGRATION_DOCUMENTATION.md](SL_TOKEN_INTEGRATION_DOCUMENTATION.md) - Token generation guide
+- ?? [LOGGING_DOCUMENTATION.md](LOGGING_DOCUMENTATION.md) - Logging configuration and usage
+- ?? [PAN_MASKING_FEATURE.md](PAN_MASKING_FEATURE.md) - PAN masking feature details
+- ?? [CARD_POLLING_FEATURE.md](CARD_POLLING_FEATURE.md) - Polling feature documentation
+- ?? [NUGET_PACKAGES_CREATED.md](NUGET_PACKAGES_CREATED.md) - NuGet package information
+- ?? [COMBOBOX_SELECTION_FIX.md](COMBOBOX_SELECTION_FIX.md) - UI fixes
+- ?? [CLEARBUFFERS_FIX.md](CLEARBUFFERS_FIX.md) - Buffer management
+- ?? [SL_TOKEN_FORMAT_UPDATE.md](SL_TOKEN_FORMAT_UPDATE.md) - Token formatting
+
+## ?? Contributing
+
+Contributions welcome! Please:
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## ?? License
+
+**MIT License**
+
+Copyright © Johan Henningsson 2008-2026
+
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+## ?? Acknowledgments
+
+- **EMVCo** - EMV specifications and standards
+- **PC/SC Workgroup** - Smart card reader standards
+- **Eternal TUTU** - Original EMVReader implementation (2008)
+- **.NET Community** - Libraries and support
+
+## ?? Contact
+
+**Johan Henningsson**
+- GitHub: [@johanhenningsson4-hash](https://github.com/johanhenningsson4-hash)
+- Repository: [EMVReaderSL](https://github.com/johanhenningsson4-hash/EMVReaderSL)
+- Issues: [GitHub Issues](https://github.com/johanhenningsson4-hash/EMVReaderSL/issues)
+
+## ??? Roadmap
+
+Future enhancements planned:
+
+- [ ] **Export Functionality** - Export to JSON/XML formats
+- [ ] **Configuration File** - External configuration support
+- [ ] **DDA/CDA Verification** - Full cryptographic verification
+- [ ] **Multi-language Support** - Internationalization (i18n)
+- [ ] **Web API** - RESTful API wrapper
+- [ ] **Database Integration** - Card data persistence
+- [ ] **Reporting** - Transaction and analytics reports
+
+## ?? Project Stats
+
+- **Language:** C# 7.3
+- **Framework:** .NET Framework 4.7.2
+- **Projects:** 3 (Main app + 2 libraries)
+- **NuGet Packages:** 2 published
+- **Lines of Code:** ~2,000+
+- **Documentation Files:** 15+
+- **License:** MIT
+- **First Release:** 2008
+- **Current Version:** 2.0.0 (2026)
+
+---
+
+**Made with ?? by Johan Henningsson** | **2008-2026**
+
+? **Star this repo if you find it useful!**
+
+[![GitHub stars](https://img.shields.io/github/stars/johanhenningsson4-hash/EMVReaderSL?style=social)](https://github.com/johanhenningsson4-hash/EMVReaderSL/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/johanhenningsson4-hash/EMVReaderSL?style=social)](https://github.com/johanhenningsson4-hash/EMVReaderSL/network/members)
