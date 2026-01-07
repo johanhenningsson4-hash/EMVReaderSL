@@ -172,6 +172,7 @@
     <None Include="README_UPDATE_COMPLETE.md" />
     <None Include="README_UPDATE_ENHANCEMENT_2026.md" />
     <None Include="README_UPDATE_SUMMARY.md" />
+    <None Include="README_UPDATE_v1.0.3_COMPLETE.md" />
     <None Include="REFACTORING_DOCUMENTATION.md" />
     <None Include="Release-v2.0.0\RELEASE_NOTES.md" />
     <None Include="RELEASE_CREATION_SUMMARY.md" />
