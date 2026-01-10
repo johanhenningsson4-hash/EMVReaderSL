@@ -16,13 +16,15 @@
     <RepositoryUrl>https://github.com/johanhenningsson4-hash/EMVReaderSL</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Copyright © Johan Henningsson 2026</Copyright>
+    <Copyright>Copyright ï¿½ Johan Henningsson 2026</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>v1.0.4 - Documentation and project organization improvements. Restructured documentation into organized docs/ directory with categorized subdirectories. Added automation scripts for documentation management and git workflows. Improved developer experience with comprehensive guides. No functional code changes. All dependencies verified up to date with no security vulnerabilities.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="8.8.0" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
   </ItemGroup>
 
   <ItemGroup>
