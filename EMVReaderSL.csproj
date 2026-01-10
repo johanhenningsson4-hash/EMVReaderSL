@@ -114,6 +114,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CardTransaction.cs" />
+    <Compile Include="EMVCard.Tests\CardTransactionTests.cs" />
+    <Compile Include="EMVCard.Tests\JsonTransactionStorageTests.cs" />
+    <Compile Include="EMVCard.Tests\TestDataHelper.cs" />
+    <Compile Include="EMVCard.Tests\TransactionStorageIntegrationTests.cs" />
     <Compile Include="EMVReader.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -138,6 +142,14 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include=".github\CI-CD-DOCUMENTATION.md" />
+    <None Include=".github\CI-CD-IMPLEMENTATION-SUMMARY.md" />
+    <None Include=".github\CI-CD-QUICK-START.md" />
+    <None Include=".github\WORKFLOW-STATUS.md" />
+    <None Include=".github\workflows\ci-cd.yml" />
+    <None Include=".github\workflows\pr-checks.yml" />
+    <None Include=".github\workflows\publish-nuget.yml" />
+    <None Include=".github\workflows\release.yml" />
     <None Include="app.config" />
     <None Include="CARD_POLLING_FEATURE.md" />
     <None Include="cleanup-docs.ps1" />
@@ -151,11 +163,13 @@
     <None Include="CODE_OPTIMIZATION_SUMMARY.md" />
     <None Include="COMBOBOX_SELECTION_FIX.md" />
     <None Include="commit-docs-cleanup.ps1" />
+    <None Include="COMMIT_GUIDE.md" />
     <None Include="Create-GitHubRelease.ps1" />
     <None Include="docs\README.md" />
     <None Include="DOCUMENTATION_CLEANUP_PLAN.md" />
     <None Include="FEATURE_SUGGESTIONS.md" />
     <None Include="FINAL_README_UPDATE_2026.md" />
+    <None Include="FINAL_SUMMARY_v2.0.0.md" />
     <None Include="GITHUB_RELEASE_COMPLETE.md" />
     <None Include="ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md" />
     <None Include="ISSUER_KEY_EXTRACTION_DOCUMENTATION.md" />
@@ -197,6 +211,7 @@
     <None Include="RELEASE_CREATION_SUMMARY.md" />
     <None Include="RELEASE_v1.0.4_PLAN.md" />
     <None Include="RELEASE_v1.0.4_SUMMARY.md" />
+    <None Include="RELEASE_v2.0.0_READY.md" />
     <None Include="SL_TOKEN_FORMAT_UPDATE.md" />
     <None Include="SL_TOKEN_INTEGRATION_DOCUMENTATION.md" />
     <None Include="SOLUTION_SYNC_STATUS.md" />
