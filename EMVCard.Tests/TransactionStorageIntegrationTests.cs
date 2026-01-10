@@ -15,12 +15,12 @@ namespace EMVCard.Tests
     public class TransactionStorageIntegrationTests : IDisposable
     {
         private readonly string _testStoragePath;
-        private readonly JsonTransactionStorage _storage;
+        private readonly SQLiteTransactionStorage _storage;
 
         public TransactionStorageIntegrationTests()
         {
             _testStoragePath = Path.Combine(Path.GetTempPath(), "EMVCard.IntegrationTests", Guid.NewGuid().ToString());
-            _storage = new JsonTransactionStorage(_testStoragePath);
+            _storage = new SQLiteTransactionStorage(_testStoragePath);
         }
 
         public void Dispose()
@@ -252,7 +252,7 @@ namespace EMVCard.Tests
             var transactionId = transaction.TransactionId;
 
             // Act - Create new storage instance pointing to same path
-            var newStorage = new JsonTransactionStorage(_testStoragePath);
+            var newStorage = new SQLiteTransactionStorage(_testStoragePath);
             var retrieved = await newStorage.GetByIdAsync(transactionId);
 
             // Assert
