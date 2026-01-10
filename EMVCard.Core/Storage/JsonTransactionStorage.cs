@@ -211,10 +211,32 @@ namespace EMVCard.Storage
             }
         }
 
+        private static readonly object _fileLock = new object();
+        private const int MaxWriteRetries = 5;
+        private const int WriteRetryDelayMs = 50;
+
         private void SaveAllTransactions(List<CardTransaction> transactions)
         {
             var json = JsonConvert.SerializeObject(transactions, _jsonSettings);
-            File.WriteAllText(_dataFile, json);
+            int attempt = 0;
+            while (true)
+            {
+                try
+                {
+                    lock (_fileLock)
+                    {
+                        File.WriteAllText(_dataFile, json);
+                    }
+                    break;
+                }
+                catch (IOException)
+                {
+                    attempt++;
+                    if (attempt >= MaxWriteRetries)
+                        throw;
+                    System.Threading.Thread.Sleep(WriteRetryDelayMs);
+                }
+            }
         }
 
         private void ExportToJson(List<CardTransaction> transactions, string filePath)
