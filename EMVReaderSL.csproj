@@ -137,9 +137,16 @@
     </Compile>
     <None Include="app.config" />
     <None Include="CARD_POLLING_FEATURE.md" />
+    <None Include="cleanup-docs.ps1" />
+    <None Include="CLEANUP_QUICK_REFERENCE.md" />
+    <None Include="CLEANUP_SUMMARY.md" />
+    <None Include="CLEANUP_UNUSED_FILES_GUIDE.md" />
     <None Include="CLEARBUFFERS_FIX.md" />
     <None Include="COMBOBOX_SELECTION_FIX.md" />
+    <None Include="commit-docs-cleanup.ps1" />
     <None Include="Create-GitHubRelease.ps1" />
+    <None Include="docs\README.md" />
+    <None Include="DOCUMENTATION_CLEANUP_PLAN.md" />
     <None Include="FINAL_README_UPDATE_2026.md" />
     <None Include="GITHUB_RELEASE_COMPLETE.md" />
     <None Include="ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md" />
@@ -168,18 +175,24 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <None Include="publish-nuget.ps1" />
+    <None Include="QUICK_RELEASE_GUIDE_v1.0.4.md" />
     <None Include="README_NUGET_VERSION_UPDATE.md" />
     <None Include="README_UPDATE_COMPLETE.md" />
     <None Include="README_UPDATE_ENHANCEMENT_2026.md" />
     <None Include="README_UPDATE_SUMMARY.md" />
     <None Include="README_UPDATE_v1.0.3_COMPLETE.md" />
+    <None Include="READY_TO_EXECUTE.md" />
     <None Include="REFACTORING_DOCUMENTATION.md" />
     <None Include="Release-v2.0.0\RELEASE_NOTES.md" />
+    <None Include="RELEASE_CHECKLIST_v1.0.4.md" />
     <None Include="RELEASE_CREATION_SUMMARY.md" />
+    <None Include="RELEASE_v1.0.4_PLAN.md" />
+    <None Include="RELEASE_v1.0.4_SUMMARY.md" />
     <None Include="SL_TOKEN_FORMAT_UPDATE.md" />
     <None Include="SL_TOKEN_INTEGRATION_DOCUMENTATION.md" />
     <None Include="SOLUTION_SYNC_STATUS.md" />
     <None Include="SUB_PROJECTS_NUGET_UPDATE_REPORT_2026.md" />
+    <None Include="update-version.ps1" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
