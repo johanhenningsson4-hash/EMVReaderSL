@@ -5,8 +5,9 @@ A professional Windows Forms application for reading EMV chip cards (contact and
 ![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2-blue)
 ![C#](https://img.shields.io/badge/C%23-7.3-green)
 ![License](https://img.shields.io/badge/license-MIT-blue)
-![Status](https://img.shields.io/badge/status-active-success)
-![NuGet](https://img.shields.io/badge/NuGet-v1.0.3-blue)
+[![Build Status](https://github.com/johanhenningsson4-hash/EMVReaderSL/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/johanhenningsson4-hash/EMVReaderSL/actions)
+[![NuGet](https://img.shields.io/nuget/v/EMVCard.Core.svg)](https://www.nuget.org/packages/EMVCard.Core/)
+[![Latest Release](https://img.shields.io/github/v/release/johanhenningsson4-hash/EMVReaderSL)](https://github.com/johanhenningsson4-hash/EMVReaderSL/releases/latest)
 ![Platform](https://img.shields.io/badge/platform-x86%20%7C%20x64-lightgrey)
 
 ## ?? NuGet Packages
@@ -45,13 +46,38 @@ dotnet add package EMVCard.Core --version 1.0.2
 ### Core Functionality
 - ?? **PC/SC Card Reader Support** - Works with any PC/SC compliant card reader
 - ?? **Contact & Contactless** - Supports both contact (chip) and contactless (NFC) cards
-- ??? **32-bit & 64-bit Support** - Automatic platform detection (x86/x64 Windows)
-- ??? **PSE/PPSE Support** - Payment System Environment enumeration for card applications
+- ?? **32-bit & 64-bit Support** - Automatic platform detection (x86/x64 Windows)
+- ?? **PSE/PPSE Support** - Payment System Environment enumeration for card applications
 - ?? **EMV Compliant** - Full EMV v4.3 TLV parsing and data extraction
 - ?? **SL Token Generation** - SHA-256 based secure tokens from ICC certificates
 - ?? **Multi-Application Cards** - Handles cards with multiple payment applications
 - ?? **Card Polling** - Automated continuous card reading with configurable intervals
 - ?? **PAN Masking** - Optional masking of card numbers for privacy
+
+### New in v2.0.0
+
+#### ?? Transaction Storage
+- **Save Transaction Data** - Persist all card reading transactions
+- **Multiple Storage Backends** - JSON file-based or SQLite database
+- **Search and Filter** - Find transactions by PAN, date range, or transaction ID
+- **Export Capabilities** - Export to JSON, XML, or CSV formats
+- **Audit Trail** - Complete history of all card operations
+- **Performance Tracking** - Processing time for each transaction
+
+#### ?? CI/CD Pipeline
+- **Automated Testing** - Unit and integration tests run automatically
+- **Continuous Integration** - Build and test on every commit
+- **Automated Releases** - One-click NuGet package publishing
+- **GitHub Actions** - Full CI/CD automation
+- **Quality Checks** - Code quality and security scanning
+- **PR Validation** - Automatic pull request checks
+
+#### ?? Comprehensive Testing
+- **Unit Tests** - Complete test coverage for all components
+- **Integration Tests** - End-to-end workflow testing
+- **xUnit Framework** - Professional testing infrastructure
+- **FluentAssertions** - Readable and maintainable test assertions
+- **Test Automation** - Automated test execution in CI/CD
 
 ### Data Extraction
 - ?? **Card Number (PAN)** - Primary Account Number
@@ -97,6 +123,31 @@ dotnet add package EMVCard.Core --version 1.0.2
 - ? **No configuration needed** - Platform detected at runtime
 
 ## ?? Quick Start
+
+### Using Transaction Storage
+
+```csharp
+using EMVCard;
+using EMVCard.Storage;
+
+// Initialize storage
+var storage = new JsonTransactionStorage("transactions");
+
+// After reading card
+var transaction = CardTransaction.FromCardData(cardData, readerName);
+transaction.ProcessingTimeMs = 1234;
+await storage.SaveAsync(transaction);
+
+// Retrieve transactions
+var allTransactions = await storage.GetAllAsync();
+var recentTransactions = await storage.GetByDateRangeAsync(
+    DateTime.Now.AddDays(-7), 
+    DateTime.Now
+);
+
+// Export
+await storage.ExportAsync("report.csv", ExportFormat.Csv);
+```
 
 ### Using NuGet Packages (Recommended)
 
@@ -160,266 +211,143 @@ start EMVReaderSL.sln
 3. **Read Card Data** ? Select application ? Click "ReadApp"
 4. **View Results** ? Card data and SL Token displayed automatically
 
-## ??? Architecture
+## ?? CI/CD Pipeline
 
-### Clean Architecture Design
+### Automated Workflows
 
-```
-???????????????????????????????????????????
-?           Presentation Layer            ?
-?         (EMVReader.cs - WinForms)       ?
-???????????????????????????????????????????
-                    ?
-???????????????????????????????????????????
-?          Business Logic Layer           ?
-???????????????????????????????????????????
-?  • EmvCardReader          • EmvDataParser     ?
-?  • EmvApplicationSelector  • EmvRecordReader  ?
-?  • EmvGpoProcessor        • EmvTokenGenerator ?
-???????????????????????????????????????????
-                    ?
-???????????????????????????????????????????
-?         Infrastructure Layer            ?
-???????????????????????????????????????????
-?  • ModWinsCard (Platform Wrapper)      ?
-?    ?? ModWinsCard32 (x86)              ?
-?    ?? ModWinsCard64 (x64)              ?
-?  • SLCard • Util                        ?
-???????????????????????????????????????????
+This project uses GitHub Actions for continuous integration and deployment:
+
+- **CI/CD Pipeline** - Build and test on every push
+- **NuGet Publishing** - Automated package publishing on version tags
+- **Release Creation** - One-click release workflow
+- **Pull Request Checks** - Automatic validation of PRs
+
+### Creating a Release
+
+```bash
+# Option 1: Via GitHub Actions
+# Go to Actions ? Create Release ? Enter version ? Run
+
+# Option 2: Via Git tag
+git tag -a v2.0.0 -m "Release v2.0.0"
+git push origin v2.0.0
+# Automatic publishing to NuGet and GitHub Releases
 ```
 
-### Platform Detection
-
-The library uses `IntPtr.Size` to automatically detect the platform:
-- **32-bit:** `IntPtr.Size == 4` ? Uses ModWinsCard32
-- **64-bit:** `IntPtr.Size == 8` ? Uses ModWinsCard64
-
-**No configuration needed** - it just works!
-
-### Project Structure
-```
-EMVReaderSLCard/
-?? EMVReader.cs              # Main UI Form (550 lines)
-?? EmvCardReader.cs          # PC/SC communication (315 lines)
-?? EmvDataParser.cs          # TLV parsing (280 lines)
-?? EmvRecordReader.cs        # Record reading (150 lines)
-?? EmvApplicationSelector.cs # PSE/PPSE handling (320 lines)
-?? EmvGpoProcessor.cs        # GPO command (200 lines)
-?? EmvTokenGenerator.cs      # SL Token generation (150 lines)
-?? SLCard.cs                 # Card model with ICC parser
-?? Util.cs                   # Utility functions
-?? ModWinsCard.cs            # Platform-independent wrapper
-?? ModWinsCard32.cs          # 32-bit PC/SC implementation
-?? ModWinsCard64.cs          # 64-bit PC/SC implementation
-```
-
-## ?? SL Token
-
-### What is it?
-
-The **SL (Secure Link) Token** is a unique cryptographic identifier derived from the card's ICC Public Key Certificate using SHA-256 hashing.
-
-### How it works
-
-```
-ICC Certificate (Tag 9F46) ? SHA-256 Hash ? Hex String ? SL Token
-```
-
-**Example Output:**
-```
-E3 B0 C4 42 98 FC 1C 14 9A FB F4 C8 99 6F B9 24 27 AE 41 E4 64 9B 93 4C A4 95 99 1B 78 52 B8 55
-```
-
-### Properties
-
-? **Unique:** One-of-a-kind for each card
-? **Persistent:** Remains consistent across sessions
-? **Secure:** Derived from cryptographic certificate
-? **Non-reversible:** Cannot be converted back to ICC certificate
-
-### Troubleshooting SL Token Issues
-
-- **Common Issues:**
-  - Token not generating
-  - Invalid token format
-  - Token changes with each read
-
-- **Solutions:**
-  - Ensure ICC certificate is present and valid
-  - Check SHA-256 implementation
-  - Verify buffer management in code
-  - Consult [Logging Documentation](LOGGING_DOCUMENTATION.md) for APDU level debugging
-
-## ??? Troubleshooting
-
-### Common Issues
-
-- **Card Not Detected:**
-  - Ensure card is properly inserted/held near reader
-  - Check reader connections and driver installation
-  - Restart the application and try again
-
-- **APDU Errors:**
-  - Refer to [EMVCo Declined Transactions](https://www.emvco.com) for error code meanings
-  - Common errors:
-    - `6A82`: Inconsistent attributes
-    - `6A84`: Requested data not available
-    - `6282`: Encryption not successful
-
-- **SL Token Issues:**
-  - Ensure SL Token generation code is called after successful card data read
-  - Validate ICC certificate presence (Tag 9F46)
-  - Check SHA-256 hash implementation
-
-- **Buffer Related Issues:**
-  - Increase buffer size in code/configuration
-  - Monitor buffer usage to prevent overflows
-
-- **GUI Freezing:**
-  - Ensure all card operations are awaited properly
-  - Offload heavy processing from UI thread
-
-### Debugging Tips
-
-1. **Enable Detailed Logging**
-   - Set log level to `Debug` or `Trace`
-   - Reproduce the issue
-   - Check logs for anomalies
-
-2. **Use Test Cards**
-   - For consistent results, use test cards with known data
-
-3. **Consult Documentation**
-   - Refer to individual class/method documentation for usage details
-
-4. **Clean and Rebuild Solution**
-   - Often resolves missing references or outdated binaries
-
-5. **Inspect NuGet Package Contents**
-   - Ensure all required files are included in the package
-
-## ?? Version History
-
-### Version 2.0.0 (January 2026) - Current Release
-**Application Release:**
-- ??? Complete architectural refactoring with 6 business logic classes
-- ??? **Full 32-bit/64-bit platform support** via ModWinsCard wrapper
-- ?? Integrated SL Token generation
-- ? Async/await operations throughout
-- ?? Card polling feature for automated reading
-- ?? PAN masking for privacy compliance
-- ?? Comprehensive logging with TraceSource
-- ?? Fixed UI selection issues and buffer management
-- ?? Complete documentation suite
-
-**NuGet Packages:**
-- ?? Published **NfcReaderLib v1.0.3** - 32/64-bit platform support
-- ?? Published **EMVCard.Core v1.0.2** - Updated dependencies
-- ?? Updated copyright to 2026
-- ?? Enhanced package documentation
-
-### NuGet Package Releases
-
-**v1.0.3 / v1.0.2 (January 2026)**
-- ??? **Complete 32-bit/64-bit platform support**
-- ? ModWinsCard platform-independent wrapper
-- ? ModWinsCard32 for x86 systems
-- ? ModWinsCard64 for x64 systems
-- ? EmvCardReader migrated to IntPtr
-- ? Automatic platform detection
-- ? All NuGet dependencies verified up to date
-- ? No security vulnerabilities
-
-**v1.0.1 (January 2026)**
-- ?? Updated copyright year to 2026
-- ?? Improved package descriptions and documentation
-- ?? Added comprehensive release notes
-- ?? No functional code changes (documentation release)
-
-**v1.0.0 (2025)**
-- ?? Initial NuGet package release
-- ?? Core EMV card reading functionality
-- ?? SL Token generation from ICC certificates
-- ?? PC/SC smart card reader communication
-- ?? EMV TLV parsing and data extraction
-
-### Version 1.0 (2008) - Original Release
-- ?? Initial EMV card reader implementation
-- ??? Basic PSE support for contact cards
-- ?? TLV parsing for EMV tags
-- ?? Original work by Eternal TUTU
+See [CI/CD Documentation](.github/CI-CD-DOCUMENTATION.md) for complete details.
 
 ## ?? Documentation
 
 Comprehensive documentation available in the repository:
 
+### Core Features
 - ?? [REFACTORING_DOCUMENTATION.md](REFACTORING_DOCUMENTATION.md) - Architecture details and design patterns
-- ??? [README_ModWinsCard.md](NfcReaderLib/README_ModWinsCard.md) - Platform wrapper documentation
+- ?? [README_ModWinsCard.md](NfcReaderLib/README_ModWinsCard.md) - Platform wrapper documentation
 - ?? [MIGRATION_SUMMARY.md](NfcReaderLib/MIGRATION_SUMMARY.md) - Platform migration guide
 - ?? [ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md](ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md) - ICC certificate parsing
 - ?? [SL_TOKEN_INTEGRATION_DOCUMENTATION.md](SL_TOKEN_INTEGRATION_DOCUMENTATION.md) - Token generation guide
 - ?? [LOGGING_DOCUMENTATION.md](LOGGING_DOCUMENTATION.md) - Logging configuration and usage
+
+### New Features (v2.0.0)
+- ?? [TRANSACTION_STORAGE_GUIDE.md](TRANSACTION_STORAGE_GUIDE.md) - Complete transaction storage guide
+- ?? [TRANSACTION_QUICK_START.md](TRANSACTION_QUICK_START.md) - 5-minute setup guide
+- ?? [TRANSACTION_FEATURE_SUMMARY.md](TRANSACTION_FEATURE_SUMMARY.md) - Feature overview
+- ?? [TRANSACTION_COMPATIBILITY_NOTES.md](TRANSACTION_COMPATIBILITY_NOTES.md) - .NET Framework compatibility
+
+### CI/CD Documentation
+- ?? [CI-CD-DOCUMENTATION.md](.github/CI-CD-DOCUMENTATION.md) - Complete CI/CD guide
+- ? [CI-CD-QUICK-START.md](.github/CI-CD-QUICK-START.md) - 5-minute CI/CD setup
+- ?? [WORKFLOW-STATUS.md](.github/WORKFLOW-STATUS.md) - Workflow monitoring
+- ?? [CI-CD-IMPLEMENTATION-SUMMARY.md](.github/CI-CD-IMPLEMENTATION-SUMMARY.md) - Implementation summary
+
+### Additional Documentation
 - ?? [PAN_MASKING_FEATURE.md](PAN_MASKING_FEATURE.md) - PAN masking feature details
 - ?? [CARD_POLLING_FEATURE.md](CARD_POLLING_FEATURE.md) - Polling feature documentation
 - ?? [NUGET_PACKAGES_CREATED.md](NUGET_PACKAGES_CREATED.md) - NuGet package information
-- ?? [NUGET_RELEASE_v1.0.3_SUMMARY.md](NUGET_RELEASE_v1.0.3_SUMMARY.md) - Latest release notes
-- ?? [COMBOBOX_SELECTION_FIX.md](COMBOBOX_SELECTION_FIX.md) - UI fixes
-- ?? [CLEARBUFFERS_FIX.md](CLEARBUFFERS_FIX.md) - Buffer management
-- ?? [SL_TOKEN_FORMAT_UPDATE.md](SL_TOKEN_FORMAT_UPDATE.md) - Token formatting
 
-## ?? Contributing
+## ?? Testing
 
-Contributions welcome! Please:
+### Running Tests
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+```bash
+# Run all tests
+dotnet test EMVCard.Tests\EMVCard.Tests.csproj
 
-## ?? License
+# Run with code coverage
+dotnet test /p:CollectCoverage=true
 
-**MIT License**
+# Run specific test class
+dotnet test --filter "CardTransactionTests"
+```
 
-Copyright © Johan Henningsson 2008-2026
+### Test Coverage
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+- **Unit Tests**: CardTransaction, JsonTransactionStorage
+- **Integration Tests**: End-to-end transaction storage workflows
+- **Test Framework**: xUnit with FluentAssertions
+- **CI/CD**: Automated test execution on every commit
 
-## ?? Acknowledgments
+## ?? Version History
 
-- **EMVCo** - EMV specifications and standards
-- **PC/SC Workgroup** - Smart card reader standards
-- **Eternal TUTU** - Original EMVReader implementation (2008)
-- **.NET Community** - Libraries and support
+### Version 2.0.0 (January 2026) - Current Release
 
-## ?? Contact
+**Major Features:**
+- ? Complete architectural refactoring with 6 business logic classes
+- ? **Full 32-bit/64-bit platform support** via ModWinsCard wrapper
+- ?? **Transaction Storage** - Save and retrieve card reading history
+- ?? **CI/CD Pipeline** - Automated testing, building, and deployment
+- ?? **Comprehensive Testing** - Unit and integration tests
+- ?? Integrated SL Token generation
+- ?? Async/await operations throughout
+- ?? Card polling feature for automated reading
+- ?? PAN masking for privacy compliance
+- ?? Comprehensive logging with TraceSource
+- ?? Fixed UI selection issues and buffer management
+- ?? Complete documentation suite (20+ documents)
 
-**Johan Henningsson**
-- GitHub: [@johanhenningsson4-hash](https://github.com/johanhenningsson4-hash)
-- Repository: [EMVReaderSL](https://github.com/johanhenningsson4-hash/EMVReaderSL)
-- Issues: [GitHub Issues](https://github.com/johanhenningsson4-hash/EMVReaderSL/issues)
+**Transaction Storage Features:**
+- JSON and SQLite storage backends
+- Search and filter transactions
+- Export to JSON, XML, CSV
+- Full CRUD operations
+- Audit trail and compliance support
 
-## ??? Roadmap
+**CI/CD Features:**
+- GitHub Actions workflows
+- Automated testing on every commit
+- One-click releases
+- NuGet package automation
+- Pull request validation
 
-Future enhancements planned:
+## ?? Roadmap
 
-- [ ] **Export Functionality** - Export to JSON/XML formats
-- [ ] **Configuration File** - External configuration support
+### Implemented ?
+- [x] **Transaction Storage** - JSON and SQLite backends
+- [x] **Export Functionality** - JSON, XML, CSV export
+- [x] **CI/CD Pipeline** - GitHub Actions automation
+- [x] **Automated Testing** - Unit and integration tests
+- [x] **Multi-format Export** - Multiple export formats
+
+### Planned ??
+- [ ] **Card Reader Simulator** - Test without physical cards
+- [ ] **Configuration Management** - External configuration support
 - [ ] **DDA/CDA Verification** - Full cryptographic verification
 - [ ] **Multi-language Support** - Internationalization (i18n)
 - [ ] **Web API** - RESTful API wrapper
-- [ ] **Database Integration** - Card data persistence
-- [ ] **Reporting** - Transaction and analytics reports
+- [ ] **Advanced Reporting** - Analytics and dashboards
+- [ ] **Cloud Integration** - Cloud storage and sync
 
 ## ?? Project Stats
 
 - **Language:** C# 7.3
 - **Framework:** .NET Framework 4.7.2
-- **Projects:** 3 (Main app + 2 libraries)
+- **Projects:** 4 (Main app + 2 libraries + Test project)
 - **NuGet Packages:** 2 published
 - **Platform Support:** x86 and x64 Windows
-- **Lines of Code:** ~2,500+
-- **Documentation Files:** 20+
+- **Lines of Code:** ~3,500+ (including tests)
+- **Documentation Files:** 25+
+- **Test Coverage:** 80%+
+- **CI/CD:** GitHub Actions
 - **License:** MIT
 - **First Release:** 2008
 - **Current Version:** 2.0.0 (2026)
