@@ -16,7 +16,7 @@
     <RepositoryUrl>https://github.com/johanhenningsson4-hash/EMVReaderSL</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Copyright © Johan Henningsson 2026</Copyright>
+    <Copyright>Copyright ï¿½ Johan Henningsson 2026</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>v1.0.3 - Documentation and project organization improvements. Synchronized with NfcReaderLib 1.0.4 documentation updates. Enhanced project structure with organized documentation directory. Improved developer experience. No functional code changes. All dependencies verified up to date with no security vulnerabilities.</PackageReleaseNotes>
   </PropertyGroup>
@@ -27,6 +27,10 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

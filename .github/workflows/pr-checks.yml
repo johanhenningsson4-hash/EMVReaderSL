@@ -1,0 +1,128 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches: [ master, develop ]
+    types: [ opened, synchronize, reopened ]
+
+jobs:
+  validate-pr:
+    name: Validate Pull Request
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Check PR title format
+      uses: amannn/action-semantic-pull-request@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        types: |
+          feat
+          fix
+          docs
+          style
+          refactor
+          perf
+          test
+          chore
+        requireScope: false
+        
+  build-pr:
+    name: Build and Test PR
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET Framework
+      uses: microsoft/setup-msbuild@v1.1
+      
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.2.0
+      
+    - name: Restore packages
+      run: nuget restore EMVReaderSL.sln
+      
+    - name: Build solution
+      run: msbuild EMVReaderSL.sln /p:Configuration=Release /p:Platform="Any CPU"
+      
+    - name: Run tests
+      run: |
+        dotnet test EMVCard.Tests\EMVCard.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+      continue-on-error: true
+      
+    - name: Comment test results
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Test Results
+        path: '**/test-results.trx'
+        reporter: dotnet-trx
+        
+  code-review:
+    name: Automated Code Review
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Check for large files
+      run: |
+        $largeFiles = Get-ChildItem -Recurse -File | Where-Object { $_.Length -gt 1MB }
+        if ($largeFiles) {
+          Write-Warning "Large files detected:"
+          $largeFiles | ForEach-Object { Write-Warning "$($_.FullName) - $([math]::Round($_.Length/1MB, 2)) MB" }
+        }
+      shell: pwsh
+      
+    - name: Check for secrets
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ github.event.pull_request.base.sha }}
+        head: ${{ github.event.pull_request.head.sha }}
+        
+    - name: Lint PowerShell scripts
+      run: |
+        Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+        $scripts = Get-ChildItem -Filter *.ps1 -Recurse
+        foreach ($script in $scripts) {
+          Write-Host "Analyzing $($script.FullName)"
+          Invoke-ScriptAnalyzer -Path $script.FullName -Severity Warning
+        }
+      shell: pwsh
+      continue-on-error: true
+      
+  size-check:
+    name: Check PR Size
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check PR size
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          const additions = pr.additions;
+          const deletions = pr.deletions;
+          const totalChanges = additions + deletions;
+          
+          console.log(`Total changes: ${totalChanges} (+${additions} -${deletions})`);
+          
+          if (totalChanges > 1000) {
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `?? This PR is quite large (${totalChanges} lines changed). Consider splitting it into smaller PRs for easier review.`
+            });
+          }

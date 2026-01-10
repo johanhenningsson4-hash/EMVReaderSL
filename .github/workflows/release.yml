@@ -1,0 +1,165 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 2.0.0)'
+        required: true
+      prerelease:
+        description: 'Is this a pre-release?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  create-release:
+    name: Create GitHub Release
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Setup .NET Framework
+      uses: microsoft/setup-msbuild@v1.1
+      
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.2.0
+      
+    - name: Restore packages
+      run: nuget restore EMVReaderSL.sln
+      
+    - name: Build solution
+      run: msbuild EMVReaderSL.sln /p:Configuration=Release /p:Version=${{ github.event.inputs.version }}
+      
+    - name: Run tests
+      run: dotnet test EMVCard.Tests\EMVCard.Tests.csproj --configuration Release --no-build
+      
+    - name: Create release directory
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Force -Path Release-v${{ github.event.inputs.version }}
+        
+    - name: Copy release files
+      shell: pwsh
+      run: |
+        $releaseDir = "Release-v${{ github.event.inputs.version }}"
+        
+        # Copy main executable
+        Copy-Item "bin\Release\EMVReader.exe" -Destination "$releaseDir\"
+        
+        # Copy dependencies
+        Copy-Item "bin\Release\*.dll" -Destination "$releaseDir\" -Exclude "*.pdb"
+        
+        # Copy documentation
+        Copy-Item "README.md" -Destination "$releaseDir\"
+        Copy-Item "LICENSE" -Destination "$releaseDir\" -ErrorAction SilentlyContinue
+        
+        # Create README for release
+        @"
+        # EMVReaderSL v${{ github.event.inputs.version }}
+        
+        ## Installation
+        1. Extract all files to a folder
+        2. Run EMVReader.exe
+        3. Connect your card reader
+        4. Read EMV cards
+        
+        ## Requirements
+        - Windows 10 or later
+        - .NET Framework 4.7.2 or later
+        - PC/SC compatible card reader
+        
+        ## What's New
+        See RELEASE_NOTES.md for details.
+        
+        ## Support
+        - GitHub: https://github.com/johanhenningsson4-hash/EMVReaderSL
+        - Issues: https://github.com/johanhenningsson4-hash/EMVReaderSL/issues
+        "@ | Out-File -FilePath "$releaseDir\README.txt" -Encoding UTF8
+        
+    - name: Create ZIP archive
+      shell: pwsh
+      run: |
+        Compress-Archive -Path "Release-v${{ github.event.inputs.version }}\*" -DestinationPath "EMVReaderSL-v${{ github.event.inputs.version }}.zip"
+        
+    - name: Pack NuGet packages
+      run: |
+        nuget pack EMVCard.Core\EMVCard.Core.nuspec -Version ${{ github.event.inputs.version }} -Properties Configuration=Release -OutputDirectory ./packages
+        nuget pack NfcReaderLib\NfcReaderLib.nuspec -Version ${{ github.event.inputs.version }} -Properties Configuration=Release -OutputDirectory ./packages
+        
+    - name: Generate release notes
+      id: notes
+      shell: pwsh
+      run: |
+        $version = "${{ github.event.inputs.version }}"
+        $notes = @"
+        ## EMVReaderSL v$version
+        
+        ### Downloads
+        - **Windows Application**: EMVReaderSL-v$version.zip
+        - **NuGet Packages**: 
+          - EMVCard.Core.$version.nupkg
+          - NfcReaderLib.$version.nupkg
+        
+        ### Installation
+        1. Download the ZIP file
+        2. Extract to your desired location
+        3. Run EMVReader.exe
+        
+        ### NuGet Installation
+        ```
+        Install-Package EMVCard.Core -Version $version
+        Install-Package NfcReaderLib -Version $version
+        ```
+        
+        ### Features
+        - EMV card reading
+        - SL Token generation
+        - Transaction storage
+        - Export capabilities
+        
+        ### System Requirements
+        - Windows 10 or later
+        - .NET Framework 4.7.2+
+        - PC/SC card reader
+        
+        ---
+        
+        **Full Changelog**: https://github.com/johanhenningsson4-hash/EMVReaderSL/compare/v$version
+        "@
+        
+        $notes | Out-File -FilePath release-notes.md -Encoding UTF8
+        echo "NOTES_FILE=release-notes.md" >> $env:GITHUB_OUTPUT
+        
+    - name: Create Git tag
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git tag -a v${{ github.event.inputs.version }} -m "Release v${{ github.event.inputs.version }}"
+        git push origin v${{ github.event.inputs.version }}
+        
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.event.inputs.version }}
+        name: Release v${{ github.event.inputs.version }}
+        body_path: release-notes.md
+        draft: false
+        prerelease: ${{ github.event.inputs.prerelease }}
+        files: |
+          EMVReaderSL-v${{ github.event.inputs.version }}.zip
+          packages/*.nupkg
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Publish to NuGet.org
+      if: github.event.inputs.prerelease == 'false'
+      run: |
+        nuget push ./packages/*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
