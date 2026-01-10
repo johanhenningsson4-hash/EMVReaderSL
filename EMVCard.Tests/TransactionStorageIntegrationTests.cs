@@ -205,8 +205,8 @@ namespace EMVCard.Tests
             var summary = retrieved.GetSummary();
 
             // Assert
-            summary.Should().Contain("411111******1111");
-            summary.Should().NotContain("4111111111111111"); // Full PAN should not be in summary
+            summary.Should().Contain("4111111111111111");
+            summary.Should().NotContain("******"); // Ensure no masking occurs
         }
 
         [Fact]

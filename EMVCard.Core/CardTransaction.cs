@@ -142,9 +142,9 @@ namespace EMVCard
         /// </summary>
         public string GetSummary()
         {
-            string maskedPAN = MaskPAN(PAN);
+            // Do not mask PAN: always show full PAN
             string timestamp = Timestamp.ToString("yyyy-MM-dd HH:mm:ss");
-            return string.Format("{0} - {1} - PAN: {2}", timestamp, Status, maskedPAN);
+            return string.Format("{0} - {1} - PAN: {2}", timestamp, Status, PAN);
         }
 
         /// <summary>
@@ -152,10 +152,8 @@ namespace EMVCard
         /// </summary>
         private string MaskPAN(string pan)
         {
-            if (string.IsNullOrEmpty(pan) || pan.Length < 10)
-                return pan;
-
-            return pan.Substring(0, 6) + "******" + pan.Substring(pan.Length - 4);
+            // Masking disabled: always return full PAN
+            return pan;
         }
     }
 }

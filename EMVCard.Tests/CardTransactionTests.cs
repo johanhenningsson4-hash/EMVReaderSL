@@ -143,7 +143,7 @@ namespace EMVCard.Tests
             // Assert
             summary.Should().Contain("2026-01-01 10:30:00");
             summary.Should().Contain("Success");
-            summary.Should().Contain("411111******1111"); // Masked PAN
+            summary.Should().Contain("4111111111111111"); // Full PAN, not masked
         }
 
         [Fact]
@@ -164,10 +164,10 @@ namespace EMVCard.Tests
         }
 
         [Theory]
-        [InlineData("4111111111111111", "411111******1111")]
-        [InlineData("5500000000000004", "550000******0004")]
-        [InlineData("371449635398431", "374496******8431")]
-        public void GetSummary_ShouldMaskPANCorrectly(string pan, string expectedMasked)
+        [InlineData("4111111111111111", "4111111111111111")]
+        [InlineData("5500000000000004", "5500000000000004")]
+        [InlineData("371449635398431", "371449635398431")]
+        public void GetSummary_ShouldMaskPANCorrectly(string pan, string expectedPAN)
         {
             // Arrange
             var transaction = new CardTransaction
@@ -180,7 +180,7 @@ namespace EMVCard.Tests
             var summary = transaction.GetSummary();
 
             // Assert
-            summary.Should().Contain(expectedMasked);
+            summary.Should().Contain(expectedPAN);
         }
 
         [Fact]

@@ -260,61 +260,8 @@ namespace NfcReaderLib
         /// <returns>Masked card number</returns>
         public static string MaskPAN(string PAN)
         {
-            _traceSource.TraceEvent(TraceEventType.Information, 0, $"MaskPAN called with PAN length={PAN?.Length ?? 0}");
-            
-            if (string.IsNullOrEmpty(PAN))
-            {
-                _traceSource.TraceEvent(TraceEventType.Warning, 0, "MaskPAN: Null or empty PAN, returning empty string");
-                return "";
-            }
-
-            string originalPAN = PAN;
-            PAN = PAN.Replace("F", "");
-            _traceSource.TraceEvent(TraceEventType.Verbose, 0, $"MaskPAN: After removing 'F', length={PAN.Length}");
-
-            string maskedPAN = null;
-            switch (PAN.Length)
-            {
-                case 12: 
-                    maskedPAN = MaskCardNumber(PAN, "xxxx-xxxx-####");
-                    _traceSource.TraceEvent(TraceEventType.Verbose, 0, "MaskPAN: Applied 12-digit mask");
-                    break;
-                case 13: 
-                    maskedPAN = MaskCardNumber(PAN, "xxxxx-xxxx-####");
-                    _traceSource.TraceEvent(TraceEventType.Verbose, 0, "MaskPAN: Applied 13-digit mask");
-                    break;
-                case 14: 
-                    maskedPAN = MaskCardNumber(PAN, "xxxx-xxx-xxx-####");
-                    _traceSource.TraceEvent(TraceEventType.Verbose, 0, "MaskPAN: Applied 14-digit mask");
-                    break;
-                case 15: 
-                    maskedPAN = MaskCardNumber(PAN, "####-xxxxxx-x####");
-                    _traceSource.TraceEvent(TraceEventType.Verbose, 0, "MaskPAN: Applied 15-digit mask (Amex)");
-                    break;
-                case 16: 
-                    maskedPAN = MaskCardNumber(PAN, "####-##xx-xxxx-####");
-                    _traceSource.TraceEvent(TraceEventType.Verbose, 0, "MaskPAN: Applied 16-digit mask");
-                    break;
-                case 17: 
-                    maskedPAN = MaskCardNumber(PAN, "#####-#xxx-xxxx-####");
-                    _traceSource.TraceEvent(TraceEventType.Verbose, 0, "MaskPAN: Applied 17-digit mask");
-                    break;
-                case 18: 
-                    maskedPAN = MaskCardNumber(PAN, "####-##xx-xxxx-x##-###");
-                    _traceSource.TraceEvent(TraceEventType.Verbose, 0, "MaskPAN: Applied 18-digit mask");
-                    break;
-                case 19: 
-                    maskedPAN = MaskCardNumber(PAN, "####-##xx-xxxx-xx##-###");
-                    _traceSource.TraceEvent(TraceEventType.Verbose, 0, "MaskPAN: Applied 19-digit mask");
-                    break;
-                default:
-                    maskedPAN = new string('X', Math.Max(0, PAN.Length - 4)) + PAN.Substring(Math.Max(0, PAN.Length - 4));
-                    _traceSource.TraceEvent(TraceEventType.Warning, 0, $"MaskPAN: Unusual PAN length {PAN.Length}, applied default mask");
-                    break;
-            }
-
-            _traceSource.TraceEvent(TraceEventType.Information, 0, $"MaskPAN: Successfully masked PAN (length {PAN.Length})");
-            return maskedPAN;
+            // PAN masking disabled: always return full PAN
+            return PAN ?? string.Empty;
         }
 
         /// <summary>
@@ -325,44 +272,8 @@ namespace NfcReaderLib
         /// <returns>Masked card number</returns>
         public static string MaskCardNumber(string cardNumber, string mask)
         {
-            _traceSource.TraceEvent(TraceEventType.Verbose, 0, $"MaskCardNumber called: cardLength={cardNumber?.Length ?? 0}, mask='{mask}'");
-            
-            if (string.IsNullOrEmpty(cardNumber))
-            {
-                _traceSource.TraceEvent(TraceEventType.Warning, 0, "MaskCardNumber: Empty card number");
-                return string.Empty;
-            }
-
-            if (string.IsNullOrEmpty(mask))
-            {
-                _traceSource.TraceEvent(TraceEventType.Warning, 0, "MaskCardNumber: Empty mask, returning original");
-                return cardNumber;
-            }
-
-            int index = 0;
-            var maskedNumber = new StringBuilder();
-            for (int i = 0; i < mask.Length && index < cardNumber.Length; i++)
-            {
-                char c = mask[i];
-                if (c == '#')
-                {
-                    maskedNumber.Append(cardNumber[index]);
-                    index++;
-                }
-                else if (c == 'x')
-                {
-                    maskedNumber.Append('x');
-                    index++;
-                }
-                else
-                {
-                    maskedNumber.Append(c);
-                }
-            }
-
-            string result = maskedNumber.ToString();
-            _traceSource.TraceEvent(TraceEventType.Verbose, 0, $"MaskCardNumber: Processed {index} digits, result length={result.Length}");
-            return result;
+            // PAN masking disabled: always return full card number
+            return cardNumber ?? string.Empty;
         }
 
         /// <summary>
