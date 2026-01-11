@@ -90,6 +90,49 @@ namespace EMVCard.Storage
             });
         }
 
+        public Task SaveBatchAsync(IEnumerable<CardTransaction> transactions)
+        {
+            return Task.Run(() =>
+            {
+                using (var conn = new SQLiteConnection(_connectionString))
+                {
+                    conn.Open();
+                    using (var transaction = conn.BeginTransaction())
+                    {
+                        foreach (var t in transactions)
+                        {
+                            using (var cmd = conn.CreateCommand())
+                            {
+                                cmd.CommandText = @"REPLACE INTO Transactions (
+                                    TransactionId, Timestamp, PAN, ExpiryDate, CardholderName, ICCCertificate, Track2Data, ReaderName, TransactionType, Status, ErrorMessage, ProcessingTimeMs, Notes, UserName, MachineName, ApplicationVersion
+                                ) VALUES (
+                                    @TransactionId, @Timestamp, @PAN, @ExpiryDate, @CardholderName, @ICCCertificate, @Track2Data, @ReaderName, @TransactionType, @Status, @ErrorMessage, @ProcessingTimeMs, @Notes, @UserName, @MachineName, @ApplicationVersion
+                                )";
+                                cmd.Parameters.AddWithValue("@TransactionId", t.TransactionId);
+                                cmd.Parameters.AddWithValue("@Timestamp", t.Timestamp.ToString("o"));
+                                cmd.Parameters.AddWithValue("@PAN", t.PAN);
+                                cmd.Parameters.AddWithValue("@ExpiryDate", t.ExpiryDate);
+                                cmd.Parameters.AddWithValue("@CardholderName", t.CardholderName);
+                                cmd.Parameters.AddWithValue("@ICCCertificate", t.ICCCertificate);
+                                cmd.Parameters.AddWithValue("@Track2Data", t.Track2Data);
+                                cmd.Parameters.AddWithValue("@ReaderName", t.ReaderName);
+                                cmd.Parameters.AddWithValue("@TransactionType", t.TransactionType);
+                                cmd.Parameters.AddWithValue("@Status", t.Status);
+                                cmd.Parameters.AddWithValue("@ErrorMessage", t.ErrorMessage);
+                                cmd.Parameters.AddWithValue("@ProcessingTimeMs", t.ProcessingTimeMs);
+                                cmd.Parameters.AddWithValue("@Notes", t.Notes);
+                                cmd.Parameters.AddWithValue("@UserName", t.UserName);
+                                cmd.Parameters.AddWithValue("@MachineName", t.MachineName);
+                                cmd.Parameters.AddWithValue("@ApplicationVersion", t.ApplicationVersion);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        transaction.Commit();
+                    }
+                }
+            });
+        }
+
         public Task<CardTransaction> GetByIdAsync(string transactionId)
         {
             return Task.Run(() =>
@@ -127,6 +170,37 @@ namespace EMVCard.Storage
                         {
                             while (reader.Read())
                                 list.Add(ReadTransaction(reader));
+                        }
+                    }
+                }
+                return list;
+            });
+        }
+
+        public Task<List<CardTransaction>> GetAllSummaryAsync()
+        {
+            return Task.Run(() =>
+            {
+                var list = new List<CardTransaction>();
+                using (var conn = new SQLiteConnection(_connectionString))
+                {
+                    conn.Open();
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        // Only select summary columns
+                        cmd.CommandText = "SELECT TransactionId, Timestamp, PAN, Status FROM Transactions";
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                list.Add(new CardTransaction
+                                {
+                                    TransactionId = reader["TransactionId"] as string,
+                                    Timestamp = DateTime.TryParse(reader["Timestamp"] as string, out var ts) ? ts : DateTime.Now,
+                                    PAN = reader["PAN"] as string,
+                                    Status = reader["Status"] as string
+                                });
+                            }
                         }
                     }
                 }
