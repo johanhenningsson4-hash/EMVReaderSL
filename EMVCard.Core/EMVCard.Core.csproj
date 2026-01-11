@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NfcReaderLib\NfcReaderLib.csproj" />
-	<PackageReference Include="FluentAssertions" Version="8.8.0" />
   </ItemGroup>
 
   <ItemGroup>
