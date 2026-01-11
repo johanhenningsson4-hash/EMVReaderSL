@@ -168,9 +168,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include=".github\CI-CD-DOCUMENTATION.md" />
-    <None Include=".github\CI-CD-IMPLEMENTATION-SUMMARY.md" />
-    <None Include=".github\CI-CD-QUICK-START.md" />
     <None Include=".github\WORKFLOW-STATUS.md" />
     <None Include=".github\workflows\ci-cd.yml" />
     <None Include=".github\workflows\pr-checks.yml" />
@@ -179,8 +176,6 @@
     <None Include="app.config" />
     <None Include="CARD_POLLING_FEATURE.md" />
     <None Include="cleanup-docs.ps1" />
-    <None Include="cleanup-workspace.ps1" />
-    <None Include="CLEANUP_EXECUTION_SUMMARY.md" />
     <None Include="CLEANUP_OPTIMIZED_GUIDE.md" />
     <None Include="CLEANUP_QUICK_REFERENCE.md" />
     <None Include="CLEANUP_SUMMARY.md" />
@@ -188,14 +183,8 @@
     <None Include="CLEARBUFFERS_FIX.md" />
     <None Include="CODE_OPTIMIZATION_SUMMARY.md" />
     <None Include="COMBOBOX_SELECTION_FIX.md" />
-    <None Include="commit-docs-cleanup.ps1" />
-    <None Include="COMMIT_GUIDE.md" />
-    <None Include="Create-GitHubRelease.ps1" />
-    <None Include="docs\README.md" />
     <None Include="DOCUMENTATION_CLEANUP_PLAN.md" />
-    <None Include="FEATURE_SUGGESTIONS.md" />
     <None Include="FINAL_README_UPDATE_2026.md" />
-    <None Include="FINAL_SUMMARY_v2.0.0.md" />
     <None Include="GITHUB_RELEASE_COMPLETE.md" />
     <None Include="ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md" />
     <None Include="ISSUER_KEY_EXTRACTION_DOCUMENTATION.md" />
@@ -223,8 +212,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="publish-nuget.ps1" />
-    <None Include="QUICK_IMPLEMENTATION_GUIDE.md" />
     <None Include="QUICK_RELEASE_GUIDE_v1.0.4.md" />
     <None Include="README_NUGET_VERSION_UPDATE.md" />
     <None Include="README_UPDATE_COMPLETE.md" />
@@ -274,6 +261,9 @@
   <ItemGroup>
     <Analyzer Include="packages\xunit.analyzers.1.26.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
     <Analyzer Include="packages\xunit.analyzers.1.26.0\analyzers\dotnet\cs\xunit.analyzers.fixes.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="docs\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
