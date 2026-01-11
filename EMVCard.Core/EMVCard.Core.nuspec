@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>EMVCard.Core</id>
+    <version>2.0.1</version>
+    <authors>Johan Henningsson</authors>
+    <owners>Johan Henningsson</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Core library for EMV card transaction storage and processing. Supports .NET Framework 4.7.2. Includes SQLite and JSON storage backends.</description>
+    <releaseNotes>Release 2.0.1 - SQLite storage, bugfixes, and improvements.</releaseNotes>
+    <copyright>Copyright © Johan Henningsson 2026</copyright>
+    <tags>emv card nfc sqlite json storage</tags>
+    <dependencies>
+      <dependency id="System.Data.SQLite" version="1.0.118" />
+      <dependency id="Newtonsoft.Json" version="13.0.4" />
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Data" targetFramework="net472" />
+    </frameworkAssemblies>
+  </metadata>
+  <files>
+    <file src="bin\Release\net472\*.dll" target="lib\net472" />
+    <file src="bin\Release\net472\*.xml" target="lib\net472" />
+  </files>
+</package>
