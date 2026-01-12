@@ -14,21 +14,21 @@ This library provides core functionality for EMV card transaction storage and pr
 - Lightweight summary queries with `GetAllSummaryAsync`
 - Designed for integration with Windows Forms and other .NET apps
 
-## What's New in v2.0.2
+## What's New in v2.0.3
 - Maintenance and compatibility improvements
-- Updated NuGet version: 2.0.2
+- Updated NuGet version: 2.0.3
 
 ## Usage
 
 Install via NuGet:
 
 ```
-Install-Package EMVCard.Core -Version 2.0.2
+Install-Package EMVCard.Core -Version 2.0.3
 ```
 
 **.NET CLI:**
 ```
-dotnet add package EMVCard.Core --version 2.0.2
+dotnet add package EMVCard.Core --version 2.0.3
 ```
 
 Example:
@@ -62,9 +62,18 @@ A .NET library for PC/SC smart card communication, SL Token generation, and EMV/
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| [**NfcReaderLib**](https://www.nuget.org/packages/NfcReaderLib) | 2.0.1 | PC/SC communication, SL Token generation |
-| [**EMVCard.Core**](https://www.nuget.org/packages/EMVCard.Core) | 2.0.1 | EMV card reading, storage, and export |
+| [**NfcReaderLib**](https://www.nuget.org/packages/NfcReaderLib) | 2.0.3 | PC/SC communication, SL Token generation |
+| [**EMVCard.Core**](https://www.nuget.org/packages/EMVCard.Core) | 2.0.3 | EMV card reading, storage, and export |
 
 ### Installation
 
 **Package Manager Console:**
+```
+Install-Package NfcReaderLib -Version 2.0.3
+Install-Package EMVCard.Core -Version 2.0.3
+```
+
+**.NET CLI:**
+```
+dotnet add package NfcReaderLib --version 2.0.3
+dotnet add package EMVCard.Core --version 2.0.3
