@@ -14,21 +14,21 @@ This library provides core functionality for EMV card transaction storage and pr
 - Lightweight summary queries with `GetAllSummaryAsync`
 - Designed for integration with Windows Forms and other .NET apps
 
-## What's New in v2.0.1
-- Performance improvements: batch insert and summary queries
-- Updated NuGet version: 2.0.1
+## What's New in v2.0.2
+- Maintenance and compatibility improvements
+- Updated NuGet version: 2.0.2
 
 ## Usage
 
 Install via NuGet:
 
 ```
-Install-Package EMVCard.Core -Version 2.0.1
+Install-Package EMVCard.Core -Version 2.0.2
 ```
 
 **.NET CLI:**
 ```
-dotnet add package EMVCard.Core --version 2.0.1
+dotnet add package EMVCard.Core --version 2.0.2
 ```
 
 Example:
