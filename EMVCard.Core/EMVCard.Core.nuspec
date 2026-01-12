@@ -11,8 +11,10 @@
     <copyright>Copyright © Johan Henningsson 2026</copyright>
     <tags>emv card nfc sqlite json storage</tags>
     <dependencies>
-      <dependency id="System.Data.SQLite" version="1.0.118" />
-      <dependency id="Newtonsoft.Json" version="13.0.4" />
+      <group targetFramework="net472">
+        <dependency id="System.Data.SQLite" version="1.0.118" />
+        <dependency id="Newtonsoft.Json" version="13.0.4" />
+      </group>
     </dependencies>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System.Data" targetFramework="net472" />
@@ -21,5 +23,6 @@
   <files>
     <file src="bin\Release\net472\*.dll" target="lib\net472" />
     <file src="bin\Release\net472\*.xml" target="lib\net472" />
+    <file src="README.md" target="README.md" />
   </files>
 </package>

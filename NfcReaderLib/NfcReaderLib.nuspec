@@ -11,8 +11,10 @@
     <copyright>Copyright © Johan Henningsson 2026</copyright>
     <tags>nfc emv card reader</tags>
     <dependencies>
-      <dependency id="System.Data.SQLite" version="1.0.118" />
-      <dependency id="Newtonsoft.Json" version="13.0.4" />
+      <group targetFramework=".NETFramework4.7.2">
+        <dependency id="System.Data.SQLite" version="1.0.118" />
+        <dependency id="Newtonsoft.Json" version="13.0.4" />
+      </group>
     </dependencies>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System.Data" targetFramework="net472" />
