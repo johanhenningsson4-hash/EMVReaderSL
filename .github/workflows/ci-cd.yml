@@ -104,3 +104,23 @@ jobs:
       run: |
         echo "Security scanning would run here"
         echo "Example: OWASP Dependency Check, Snyk, or GitHub Security Scanning"
+        
+  release:
+    name: Release to NuGet
+    runs-on: windows-latest
+    needs: build-and-test
+    if: github.ref_type == 'tag'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET Framework
+      uses: microsoft/setup-msbuild@v1.1
+      
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.2.0
+      
+    - name: Push to NuGet.org
+      run: |
+        nuget push ./packages/*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
