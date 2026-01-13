@@ -10,6 +10,7 @@
     <releaseNotes>Release 2.0.3 - Maintenance and compatibility improvements.</releaseNotes>
     <copyright>Copyright © Johan Henningsson 2026</copyright>
     <tags>nfc emv card reader</tags>
+    <readme>README.md</readme>
     <dependencies>
       <group targetFramework="net472">
         <dependency id="System.Data.SQLite" version="1.0.118" />

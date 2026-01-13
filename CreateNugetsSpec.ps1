@@ -1,15 +1,16 @@
+$nuspecContent = @"
 <?xml version="1.0"?>
-<package >
+<package>
   <metadata>
-    <id>EMVCard.Core</id>
+    <id>NfcReaderLib</id>
     <version>2.0.3</version>
     <authors>Johan Henningsson</authors>
     <owners>Johan Henningsson</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Core library for EMV card transaction storage and processing. Supports .NET Framework 4.7.2. Includes SQLite and JSON storage backends.</description>
+    <description>Library for NFC/EMV card reading and utility functions. Supports .NET Framework 4.7.2.</description>
     <releaseNotes>Release 2.0.3 - Maintenance and compatibility improvements.</releaseNotes>
-    <copyright>Copyright © Johan Henningsson 2026</copyright>
-    <tags>emv card nfc sqlite json storage</tags>
+    <copyright>Copyright Â© Johan Henningsson 2026</copyright>
+    <tags>nfc emv card reader</tags>
     <readme>README.md</readme>
     <dependencies>
       <group targetFramework="net472">
@@ -27,3 +28,7 @@
     <file src="README.md" target="README.md" />
   </files>
 </package>
+"@
+
+Set-Content -Path "NfcReaderLib.nuspec" -Value $nuspecContent -Encoding UTF8
+Write-Host "NfcReaderLib.nuspec has been created/overwritten."
