@@ -1,0 +1,29 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>NfcReaderLib</id>
+    <version>2.0.3</version>
+    <authors>Johan Henningsson</authors>
+    <owners>Johan Henningsson</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Library for NFC/EMV card reading and utility functions. Supports .NET Framework 4.7.2.</description>
+    <releaseNotes>Release 2.0.3 - Maintenance and compatibility improvements.</releaseNotes>
+    <copyright>Copyright Â© Johan Henningsson 2026</copyright>
+    <tags>nfc emv card reader</tags>
+    <readme>README.md</readme>
+    <dependencies>
+      <group targetFramework="net472">
+        <dependency id="System.Data.SQLite" version="1.0.118" />
+        <dependency id="Newtonsoft.Json" version="13.0.4" />
+      </group>
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Data" targetFramework="net472" />
+    </frameworkAssemblies>
+  </metadata>
+  <files>
+    <file src="bin\Release\net472\*.dll" target="lib\net472" />
+    <file src="bin\Release\net472\*.xml" target="lib\net472" />
+    <file src="README.md" target="README.md" />
+  </files>
+</package>
