@@ -1,0 +1,42 @@
+name: Code Coverage
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    name: Run Code Coverage
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup .NET Framework
+        uses: microsoft/setup-msbuild@v1.1
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.2.0
+      - name: Restore NuGet packages
+        run: nuget restore EMVReaderSL.sln
+      - name: Build solution
+        run: msbuild EMVReaderSL.sln /p:Configuration=Release /p:Platform="Any CPU" /m
+      - name: Install dotnet-coverage tool
+        run: dotnet tool install --global dotnet-coverage
+      - name: Run code coverage
+        run: dotnet-coverage collect -f cobertura -o coverage.cobertura.xml dotnet test EMVCard.Tests\EMVCard.Tests.csproj --configuration Release --no-build --verbosity normal
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: coverage.cobertura.xml
+          retention-days: 30
+      - name: Publish coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage.cobertura.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}

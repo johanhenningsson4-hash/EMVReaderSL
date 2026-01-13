@@ -184,6 +184,7 @@
     </Compile>
     <None Include=".github\WORKFLOW-STATUS.md" />
     <None Include=".github\workflows\ci-cd.yml" />
+    <None Include=".github\workflows\code-coverage.yml" />
     <None Include=".github\workflows\pr-checks.yml" />
     <None Include=".github\workflows\publish-nuget.yml" />
     <None Include=".github\workflows\release.yml" />
