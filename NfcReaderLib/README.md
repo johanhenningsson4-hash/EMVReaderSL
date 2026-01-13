@@ -39,3 +39,6 @@ dotnet add package EMVCard.Core --version 2.0.3
 
 ## License
 MIT
+
+## Copyright
+Copyright holders: Johan Henningsson

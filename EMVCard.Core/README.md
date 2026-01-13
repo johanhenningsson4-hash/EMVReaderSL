@@ -54,6 +54,9 @@ var summaries = await storage.GetAllSummaryAsync();
 ## License
 MIT
 
+## Copyright
+Copyright holders: Johan Henningsson
+
 # NfcReaderLib
 
 A .NET library for PC/SC smart card communication, SL Token generation, and EMV/NFC card utilities.
