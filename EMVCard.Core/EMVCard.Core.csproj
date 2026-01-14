@@ -39,4 +39,9 @@
     <PackageReference Include="xunit" Version="2.9.3" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageIconUrl>https://raw.githubusercontent.com/johanhenningsson4-hash/EMVReaderSL/master/icon.png</PackageIconUrl>
+  </PropertyGroup>
+
 </Project>
