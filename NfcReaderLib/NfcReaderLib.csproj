@@ -6,7 +6,7 @@
     <AssemblyName>NfcReaderLib</AssemblyName>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>NfcReaderLib</PackageId>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <Authors>Johan Henningsson</Authors>
     <Company>Johan Henningsson</Company>
     <Product>NFC Reader Library</Product>
@@ -18,7 +18,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright � Johan Henningsson 2026</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>v1.0.5 - Added ReaderDiagnostics for clear error messages when no PC/SC card reader or drivers are found. Improved XML documentation for public APIs. NuGet icon and metadata improvements. No breaking changes.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.0.6 - No breaking changes.</PackageReleaseNotes>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <PackageIcon>icon.png</PackageIcon>
     <PackageIconUrl>https://raw.githubusercontent.com/johanhenningsson4-hash/EMVReaderSL/master/icon.png</PackageIconUrl>
