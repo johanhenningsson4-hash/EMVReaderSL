@@ -6,7 +6,7 @@
     <AssemblyName>NfcReaderLib</AssemblyName>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>NfcReaderLib</PackageId>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <Authors>Johan Henningsson</Authors>
     <Company>Johan Henningsson</Company>
     <Product>NFC Reader Library</Product>
@@ -36,6 +36,9 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
     <None Include="README_ModWinsCard.md" Pack="true" PackagePath="\" />
     <None Include="MIGRATION_SUMMARY.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\\icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

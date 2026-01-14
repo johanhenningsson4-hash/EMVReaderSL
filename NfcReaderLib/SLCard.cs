@@ -11,6 +11,9 @@ namespace NfcReaderLib
 {
     // You will need to implement or port EMVTransactionRecord, Util, etc.
 
+    /// <summary>
+    /// Represents a Secure Link (SL) EMV card and provides methods for SL token generation, PAN masking, and ICC public key parsing.
+    /// </summary>
     public class SLCard // : EmvCard (implement or port EmvCard base class if needed)
     {
         private static readonly TraceSource _traceSource = new TraceSource("NfcReaderLib.SLCard");
@@ -36,6 +39,10 @@ namespace NfcReaderLib
         public byte[] LogDataField { get; set; }
         //public List<EMVTransactionRecord> ListTransactions { get; set; } = new List<EMVTransactionRecord>();
 
+        /// <summary>
+        /// Generates a SHA-256 based SL token from the ICC public key certificate.
+        /// </summary>
+        /// <returns>Hex string of the SHA-256 hash of the ICC public key certificate, or empty string on error.</returns>
         public string GetSLToken()
         {
             try
@@ -54,6 +61,10 @@ namespace NfcReaderLib
             }
         }
 
+        /// <summary>
+        /// Generates a SHA-256 based SL token from the ICC public key certificate, with spaces between bytes.
+        /// </summary>
+        /// <returns>Hex string (with spaces) of the SHA-256 hash of the ICC public key certificate, or empty string on error.</returns>
         public string GetSLToken2()
         {
             try
@@ -72,11 +83,18 @@ namespace NfcReaderLib
             }
         }
 
+        /// <summary>
+        /// Returns the masked Primary Account Number (PAN) using the Util.MaskPAN method.
+        /// </summary>
+        /// <returns>Masked PAN string.</returns>
         public string GetMaskedPAN()
         {
             return Util.MaskPAN(PAN);
         }
 
+        /// <summary>
+        /// Represents an RSA public key for EMV processing.
+        /// </summary>
         /// <summary>
         /// Represents an RSA public key for EMV processing.
         /// </summary>
@@ -86,18 +104,38 @@ namespace NfcReaderLib
             public byte[] Exponent { get; set; }
             public int ModulusLength => Modulus?.Length ?? 0;
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="EmvPublicKey"/> class.
+            /// </summary>
+            /// <param name="modulus">The RSA modulus.</param>
+            /// <param name="exponent">The RSA exponent.</param>
             public EmvPublicKey(byte[] modulus, byte[] exponent)
             {
                 Modulus = modulus ?? throw new ArgumentNullException(nameof(modulus));
                 Exponent = exponent ?? throw new ArgumentNullException(nameof(exponent));
             }
 
+            /// <summary>
+            /// Returns a string representation of the public key.
+            /// </summary>
+            /// <returns>String describing the modulus length and exponent.</returns>
             public override string ToString()
             {
                 return $"PublicKey[Modulus={ModulusLength} bytes, Exponent={Util.ByteArrayToHexString(Exponent)}]";
             }
         }
 
+        /// <summary>
+        /// Parse and verify the ICC Public Key Certificate.
+        /// Implements EMV v4.3 Book 2, Section 6.4 and Table 13.
+        /// </summary>
+        /// <param name="issuerPublicKey">Public key of the card issuer</param>
+        /// <param name="iccPublicKeyCertificate">ICC public key certificate as read from card (tag 9F46)</param>
+        /// <param name="iccRemainder">ICC public key remainder as read from card (tag 9F48)</param>
+        /// <param name="iccPublicKeyExponent">ICC public key exponent as read from card (tag 9F47)</param>
+        /// <param name="pan">Primary Account Number (optional, for validation)</param>
+        /// <param name="staticData">Static authentication data for hash validation (optional)</param>
+        /// <returns>The verified ICC public key, or null if validation fails</returns>
         /// <summary>
         /// Parse and verify the ICC Public Key Certificate.
         /// Implements EMV v4.3 Book 2, Section 6.4 and Table 13.
@@ -327,6 +365,12 @@ namespace NfcReaderLib
         /// Note: This implementation requires System.Numerics.dll reference in the project.
         /// To add: Right-click References -> Add Reference -> Assemblies -> System.Numerics
         /// </summary>
+        /// <summary>
+        /// Decrypts data using RSA public key (textbook RSA, no padding).
+        /// </summary>
+        /// <param name="encryptedData">The encrypted data to decrypt.</param>
+        /// <param name="publicKey">The public key to use for decryption.</param>
+        /// <returns>The decrypted data as a byte array, or null on error.</returns>
         private byte[] RsaDecrypt(byte[] encryptedData, EmvPublicKey publicKey)
         {
             _traceSource.TraceEvent(TraceEventType.Verbose, 0,
@@ -376,6 +420,13 @@ namespace NfcReaderLib
         /// Perform raw RSA decryption without padding using manual calculation.
         /// This requires System.Numerics.dll to be referenced in the project.
         /// </summary>
+        /// <summary>
+        /// Performs raw RSA decryption without padding using manual calculation.
+        /// </summary>
+        /// <param name="ciphertext">The ciphertext to decrypt.</param>
+        /// <param name="modulus">The RSA modulus.</param>
+        /// <param name="exponent">The RSA exponent.</param>
+        /// <returns>The decrypted data as a byte array.</returns>
         private byte[] RsaDecryptNoPadding(byte[] ciphertext, byte[] modulus, byte[] exponent)
         {
             try
@@ -446,6 +497,16 @@ namespace NfcReaderLib
         /// <summary>
         /// Verify the ICC certificate hash according to EMV specifications.
         /// </summary>
+        /// <summary>
+        /// Verifies the ICC certificate hash according to EMV specifications.
+        /// </summary>
+        /// <param name="certHash">The hash from the certificate.</param>
+        /// <param name="decryptedCertificate">The decrypted certificate data.</param>
+        /// <param name="iccModulusFull">The full ICC public key modulus.</param>
+        /// <param name="iccExponent">The ICC public key exponent.</param>
+        /// <param name="staticData">Static authentication data (optional).</param>
+        /// <param name="hashAlgorithm">Hash algorithm indicator.</param>
+        /// <returns>True if the hash is valid, false otherwise.</returns>
         private bool VerifyIccCertificateHash(
             byte[] certHash,
             byte[] decryptedCertificate,
@@ -539,6 +600,12 @@ namespace NfcReaderLib
         /// <summary>
         /// Validate that the PAN in the certificate matches the card PAN.
         /// </summary>
+        /// <summary>
+        /// Validates that the PAN in the certificate matches the card PAN.
+        /// </summary>
+        /// <param name="pan">The card PAN.</param>
+        /// <param name="applicationPanByte">The PAN byte from the certificate.</param>
+        /// <returns>True if the PAN is valid or not provided, false otherwise.</returns>
         private bool ValidatePanInCertificate(string pan, byte applicationPanByte)
         {
             if (string.IsNullOrEmpty(pan))
@@ -568,6 +635,11 @@ namespace NfcReaderLib
             }
         }
 
+        /// <summary>
+        /// Convenience method to parse ICC public key using instance properties.
+        /// </summary>
+        /// <param name="issuerPublicKey">Public key of the card issuer</param>
+        /// <returns>The verified ICC public key, or null if validation fails</returns>
         /// <summary>
         /// Convenience method to parse ICC public key using instance properties.
         /// </summary>
