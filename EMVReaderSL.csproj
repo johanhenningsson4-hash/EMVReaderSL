@@ -267,6 +267,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="icon.png" />
     <Content Include="Release-v2.0.0\README.txt" />
   </ItemGroup>
   <ItemGroup>

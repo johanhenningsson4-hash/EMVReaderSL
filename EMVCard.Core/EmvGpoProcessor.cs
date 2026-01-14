@@ -8,13 +8,26 @@ namespace EMVCard
     /// <summary>
     /// Handles GPO (Get Processing Options) command construction and execution.
     /// </summary>
+
     public class EmvGpoProcessor
     {
         private static readonly TraceSource _traceSource = new TraceSource("EMVCard.EmvGpoProcessor");
-
         private readonly EmvCardReader _cardReader;
 
         public event EventHandler<string> LogMessage;
+
+        /// <summary>
+        /// Logging level for controlling verbosity.
+        /// </summary>
+        public SourceLevels LoggingLevel { get; private set; } = SourceLevels.Information;
+
+        /// <summary>
+        /// Set the logging level at runtime.
+        /// </summary>
+        public void SetLoggingLevel(SourceLevels level)
+        {
+            LoggingLevel = level;
+        }
 
         public EmvGpoProcessor(EmvCardReader cardReader)
         {
@@ -29,7 +42,11 @@ namespace EMVCard
         /// <returns>True if GPO successful</returns>
         public bool SendGPO(byte[] fciData, out byte[] gpoResponse)
         {
-            _traceSource.TraceEvent(TraceEventType.Information, 0, "SendGPO: Processing GPO command");
+            if (fciData == null)
+                throw new ArgumentNullException(nameof(fciData));
+
+            if ((LoggingLevel & SourceLevels.Information) == SourceLevels.Information)
+                _traceSource.TraceEvent(TraceEventType.Information, 0, "SendGPO: Processing GPO command");
 
             gpoResponse = null;
 
@@ -107,6 +124,18 @@ namespace EMVCard
         /// <summary>
         /// Send simplified GPO (no PDOL).
         /// </summary>
+        private void LogApduCommandAndResponse(string context, byte[] command, byte[] response)
+        {
+            if ((LoggingLevel & SourceLevels.Information) == SourceLevels.Information)
+            {
+                string cmdHex = BitConverter.ToString(command ?? new byte[0]);
+                string respHex = response != null ? BitConverter.ToString(response) : "null";
+                _traceSource.TraceEvent(TraceEventType.Information, 0, $"{context} APDU Command: {cmdHex}");
+                _traceSource.TraceEvent(TraceEventType.Information, 0, $"{context} APDU Response: {respHex}");
+                OnLogMessage($"{context} APDU Command: {cmdHex}");
+                OnLogMessage($"{context} APDU Response: {respHex}");
+            }
+        }
         private bool SendSimplifiedGPO(out byte[] gpoResponse)
         {
             byte[] gpoCmd = new byte[] { 0x80, 0xA8, 0x00, 0x00, 0x02, 0x83, 0x00, 0x00 };
@@ -147,8 +176,9 @@ namespace EMVCard
         /// </summary>
         private byte[] ConstructPDOLData(byte[] pdolRaw)
         {
-            _traceSource.TraceEvent(TraceEventType.Verbose, 0,
-                $"ConstructPDOLData: Constructing PDOL data from {pdolRaw.Length} bytes");
+            if ((LoggingLevel & SourceLevels.Verbose) == SourceLevels.Verbose)
+                _traceSource.TraceEvent(TraceEventType.Verbose, 0,
+                    $"ConstructPDOLData: Constructing PDOL data from {pdolRaw.Length} bytes");
 
             List<byte> pdolData = new List<byte>();
             int pdolIndex = 0;
@@ -168,23 +198,27 @@ namespace EMVCard
                 {
                     case 0x9F66: // TTQ (Terminal Transaction Qualifiers)
                         pdolData.AddRange(new byte[] { 0x37, 0x00, 0x00, 0x00 });
-                        _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added TTQ");
+                        if ((LoggingLevel & SourceLevels.Verbose) == SourceLevels.Verbose)
+                            _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added TTQ");
                         break;
 
                     case 0x9F02: // Amount Authorized
                         pdolData.AddRange(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 });
-                        _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added Amount Authorized");
+                        if ((LoggingLevel & SourceLevels.Verbose) == SourceLevels.Verbose)
+                            _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added Amount Authorized");
                         break;
 
                     case 0x9F03: // Amount Other (Cashback)
                         pdolData.AddRange(new byte[tagLen]);
-                        _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added Amount Other");
+                        if ((LoggingLevel & SourceLevels.Verbose) == SourceLevels.Verbose)
+                            _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added Amount Other");
                         break;
 
                     case 0x9F1A: // Terminal Country Code
                     case 0x5F2A: // Transaction Currency Code
                         pdolData.AddRange(new byte[] { 0x01, 0x56 }); // China/RMB: 0156
-                        _traceSource.TraceEvent(TraceEventType.Verbose, 0, $"ConstructPDOLData: Added Country/Currency Code (tag {tag:X})");
+                        if ((LoggingLevel & SourceLevels.Verbose) == SourceLevels.Verbose)
+                            _traceSource.TraceEvent(TraceEventType.Verbose, 0, $"ConstructPDOLData: Added Country/Currency Code (tag {tag:X})");
                         break;
 
                     case 0x9A: // Transaction Date (YYMMDD)
@@ -195,12 +229,14 @@ namespace EMVCard
                             (byte)date.Month,
                             (byte)date.Day
                         });
-                        _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added Transaction Date");
+                        if ((LoggingLevel & SourceLevels.Verbose) == SourceLevels.Verbose)
+                            _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added Transaction Date");
                         break;
 
                     case 0x9C: // Transaction Type
                         pdolData.Add(0x00); // Purchase
-                        _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added Transaction Type");
+                        if ((LoggingLevel & SourceLevels.Verbose) == SourceLevels.Verbose)
+                            _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added Transaction Type");
                         break;
 
                     case 0x9F37: // Unpredictable Number
@@ -209,26 +245,33 @@ namespace EMVCard
                         {
                             pdolData.Add((byte)rnd.Next(0, 256));
                         }
-                        _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added Unpredictable Number");
+                        if ((LoggingLevel & SourceLevels.Verbose) == SourceLevels.Verbose)
+                            _traceSource.TraceEvent(TraceEventType.Verbose, 0, "ConstructPDOLData: Added Unpredictable Number");
                         break;
 
                     default:
                         // Fill with zeros for unknown tags
                         pdolData.AddRange(new byte[tagLen]);
-                        _traceSource.TraceEvent(TraceEventType.Verbose, 0, $"ConstructPDOLData: Added {tagLen} zeros for tag {tag:X}");
+                        if ((LoggingLevel & SourceLevels.Verbose) == SourceLevels.Verbose)
+                            _traceSource.TraceEvent(TraceEventType.Verbose, 0, $"ConstructPDOLData: Added {tagLen} zeros for tag {tag:X}");
                         break;
                 }
             }
 
-            _traceSource.TraceEvent(TraceEventType.Information, 0,
-                $"ConstructPDOLData: Constructed {pdolData.Count} bytes of PDOL data");
+            if ((LoggingLevel & SourceLevels.Information) == SourceLevels.Information)
+                _traceSource.TraceEvent(TraceEventType.Information, 0,
+                    $"ConstructPDOLData: Constructed {pdolData.Count} bytes of PDOL data");
 
             return pdolData.ToArray();
         }
 
         protected virtual void OnLogMessage(string message)
         {
-            LogMessage?.Invoke(this, message);
+            // Only log if logging level is not Off
+            if (LoggingLevel != SourceLevels.Off)
+            {
+                LogMessage?.Invoke(this, message);
+            }
         }
 
         /// <summary>

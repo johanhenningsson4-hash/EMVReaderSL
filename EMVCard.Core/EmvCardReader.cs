@@ -245,7 +245,7 @@ namespace EMVCard
         /// <param name="apdu">APDU command</param>
         /// <param name="response">Response from card</param>
         /// <returns>True if successful</returns>
-        public bool SendApduWithAutoFix(byte[] apdu, out byte[] response)
+        public virtual bool SendApduWithAutoFix(byte[] apdu, out byte[] response)
         {
             if (!SendApdu(apdu, out response))
             {
@@ -385,3 +385,6 @@ namespace EMVCard
         }
     }
 }
+
+
+
