@@ -156,10 +156,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EMVCard.Tests\CardTransactionTests.cs" />
-    <Compile Include="EMVCard.Tests\JsonTransactionStorageTests.cs" />
-    <Compile Include="EMVCard.Tests\TestDataHelper.cs" />
-    <Compile Include="EMVCard.Tests\TransactionStorageIntegrationTests.cs" />
     <Compile Include="EMVReader.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -11,7 +11,9 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="8.8.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="Stub.System.Data.SQLite.Core.NetFramework" Version="1.0.119" />
     <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>

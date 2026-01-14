@@ -20,6 +20,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>v1.0.3 - Documentation and project organization improvements. Synchronized with NfcReaderLib 1.0.4 documentation updates. Enhanced project structure with organized documentation directory. Improved developer experience. No functional code changes. All dependencies verified up to date with no security vulnerabilities.</PackageReleaseNotes>
     <Platforms>AnyCPU;x64;x86</Platforms>
+	<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +35,7 @@
     <PackageReference Include="FluentAssertions" Version="8.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
     <PackageReference Include="xunit" Version="2.9.3" />
   </ItemGroup>
 
