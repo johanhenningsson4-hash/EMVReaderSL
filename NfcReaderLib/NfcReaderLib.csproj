@@ -18,7 +18,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright � Johan Henningsson 2026</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>v1.0.4 - Documentation and project organization improvements. Restructured documentation into organized docs/ directory with categorized subdirectories. Added automation scripts for documentation management and git workflows. Improved developer experience with comprehensive guides. No functional code changes. All dependencies verified up to date with no security vulnerabilities.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.0.5 - Added ReaderDiagnostics for clear error messages when no PC/SC card reader or drivers are found. Improved XML documentation for public APIs. NuGet icon and metadata improvements. No breaking changes.</PackageReleaseNotes>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <PackageIcon>icon.png</PackageIcon>
     <PackageIconUrl>https://raw.githubusercontent.com/johanhenningsson4-hash/EMVReaderSL/master/icon.png</PackageIconUrl>
