@@ -12,6 +12,7 @@ using NfcReaderLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -158,8 +159,37 @@ namespace EMVCard
                 cbReader.Items.Add(reader);
             }
 
+            // After populating cbReader.Items
             if (cbReader.Items.Count > 0)
-                cbReader.SelectedIndex = 0;
+            {
+                // Try to select a reader from config, fallback to PICC, then first
+                string defaultReader = ConfigurationManager.AppSettings["DefaultEMVReader"];
+                int defaultIndex = -1;
+                if (!string.IsNullOrWhiteSpace(defaultReader))
+                {
+                    for (int i = 0; i < cbReader.Items.Count; i++)
+                    {
+                        if (cbReader.Items[i].ToString().IndexOf(defaultReader, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            defaultIndex = i;
+                            break;
+                        }
+                    }
+                }
+                if (defaultIndex < 0)
+                {
+                    // Fallback to PICC if not found
+                    for (int i = 0; i < cbReader.Items.Count; i++)
+                    {
+                        if (cbReader.Items[i].ToString().IndexOf("PICC", StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            defaultIndex = i;
+                            break;
+                        }
+                    }
+                }
+                cbReader.SelectedIndex = defaultIndex >= 0 ? defaultIndex : 0;
+            }
         }
 
         private async void bConnect_Click(object sender, EventArgs e) {
