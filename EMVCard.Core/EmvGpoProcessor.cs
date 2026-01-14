@@ -40,8 +40,15 @@ namespace EMVCard
                 if (fciData[index] == 0x9F && fciData[index + 1] == 0x38)
                 {
                     // Found PDOL
+                    if (index + 2 >= fciData.Length)
+                        break; // Not enough data for length byte
+
                     index += 2;
                     int len = fciData[index++];
+
+                    if (index + len > fciData.Length)
+                        break; // Not enough data for PDOL
+
                     byte[] pdolRaw = new byte[len];
                     Array.Copy(fciData, index, pdolRaw, 0, len);
 
@@ -65,14 +72,21 @@ namespace EMVCard
                         return false;
                     }
 
-                    if (gpoResponse[0] == 0x80 || gpoResponse[0] == 0x77)
+                    if (gpoResponse != null && gpoResponse.Length > 0 && (gpoResponse[0] == 0x80 || gpoResponse[0] == 0x77))
                     {
                         OnLogMessage("GPO successful response (with PDOL)");
                         return true;
                     }
                     else
                     {
-                        OnLogMessage("GPO response format abnormal");
+                        if (gpoResponse == null || gpoResponse.Length == 0)
+                        {
+                            OnLogMessage("GPO response is empty or null");
+                        }
+                        else
+                        {
+                            OnLogMessage("GPO response format abnormal");
+                        }
                         return false;
                     }
                 }
@@ -97,14 +111,21 @@ namespace EMVCard
                 return false;
             }
 
-            if (gpoResponse[0] == 0x80 || gpoResponse[0] == 0x77)
+            if (gpoResponse != null && gpoResponse.Length > 0 && (gpoResponse[0] == 0x80 || gpoResponse[0] == 0x77))
             {
                 OnLogMessage("GPO successful response (simplified mode)");
                 return true;
             }
             else
             {
-                OnLogMessage("Simplified GPO response format abnormal");
+                if (gpoResponse == null || gpoResponse.Length == 0)
+                {
+                    OnLogMessage("Simplified GPO response is empty or null");
+                }
+                else
+                {
+                    OnLogMessage("Simplified GPO response format abnormal");
+                }
                 return false;
             }
         }
