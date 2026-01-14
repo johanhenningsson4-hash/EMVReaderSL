@@ -6,7 +6,7 @@
     <AssemblyName>EMVCard.Core</AssemblyName>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>EMVCard.Core</PackageId>
-    <Version>1.0.3</Version>
+    <Version>2.0.1</Version>
     <Authors>Johan Henningsson</Authors>
     <Company>Johan Henningsson</Company>
     <Product>EMV Card Reader Core</Product>
@@ -18,7 +18,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright � Johan Henningsson 2026</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>v1.0.3 - Documentation and project organization improvements. Synchronized with NfcReaderLib 1.0.4 documentation updates. Enhanced project structure with organized documentation directory. Improved developer experience. No functional code changes. All dependencies verified up to date with no security vulnerabilities.</PackageReleaseNotes>
+    <PackageReleaseNotes>v2.0.1 - Bugfixes: ArgumentNullException for null FCI, valid PDOL TLV in tests, no duplicate/partial methods. Logging is now configurable. C# 7.3 compatibility. Moq-based tests supported. See RELEASE_NOTES.md for details.</PackageReleaseNotes>
     <Platforms>AnyCPU;x64;x86</Platforms>
 	<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
