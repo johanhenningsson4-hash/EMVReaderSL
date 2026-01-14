@@ -162,4 +162,4 @@ jobs:
     - name: Publish to NuGet.org
       if: github.event.inputs.prerelease == 'false'
       run: |
-        nuget push ./packages/*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
+        nuget push .\packages\*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
