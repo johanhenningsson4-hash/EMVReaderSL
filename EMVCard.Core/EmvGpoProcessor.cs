@@ -66,11 +66,17 @@ namespace EMVCard
                     gpo.AddRange(pdolData);
                     gpo.Add(0x00); // Le
 
+                    // Log the APDU command before sending
+                    LogApduCommandAndResponse("GPO (with PDOL)", gpo.ToArray(), null);
+
                     if (!_cardReader.SendApduWithAutoFix(gpo.ToArray(), out gpoResponse))
                     {
+                        LogApduCommandAndResponse("GPO (with PDOL) FAILED", gpo.ToArray(), gpoResponse);
                         OnLogMessage("GPO command failed");
                         return false;
                     }
+
+                    LogApduCommandAndResponse("GPO (with PDOL) RESPONSE", gpo.ToArray(), gpoResponse);
 
                     if (gpoResponse != null && gpoResponse.Length > 0 && (gpoResponse[0] == 0x80 || gpoResponse[0] == 0x77))
                     {
@@ -105,11 +111,17 @@ namespace EMVCard
         {
             byte[] gpoCmd = new byte[] { 0x80, 0xA8, 0x00, 0x00, 0x02, 0x83, 0x00, 0x00 };
 
+            // Log the APDU command before sending
+            LogApduCommandAndResponse("Simplified GPO", gpoCmd, null);
+
             if (!_cardReader.SendApduWithAutoFix(gpoCmd, out gpoResponse))
             {
+                LogApduCommandAndResponse("Simplified GPO FAILED", gpoCmd, gpoResponse);
                 OnLogMessage("Simplified GPO command failed");
                 return false;
             }
+
+            LogApduCommandAndResponse("Simplified GPO RESPONSE", gpoCmd, gpoResponse);
 
             if (gpoResponse != null && gpoResponse.Length > 0 && (gpoResponse[0] == 0x80 || gpoResponse[0] == 0x77))
             {
