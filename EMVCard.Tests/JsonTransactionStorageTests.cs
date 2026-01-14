@@ -17,14 +17,19 @@ namespace EMVCard.Tests
     {
         private readonly string _testStoragePath;
         private readonly JsonTransactionStorage _storage;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonTransactionStorageTests"/> class.
+        /// Sets up a unique test directory and storage instance for each test run.
+        /// </summary>
         public JsonTransactionStorageTests()
         {
             // Use unique test directory for each test run
             _testStoragePath = Path.Combine(Path.GetTempPath(), "EMVCard.Tests", Guid.NewGuid().ToString());
             _storage = new JsonTransactionStorage(_testStoragePath);
         }
-
+        /// <summary>
+        /// Cleans up the test directory after each test run.
+        /// </summary>
         public void Dispose()
         {
             // Cleanup test directory
@@ -34,6 +39,9 @@ namespace EMVCard.Tests
             }
         }
 
+        /// <summary>
+        /// Verifies that saving a valid transaction persists it to storage.
+        /// </summary>
         [Fact]
         public async Task SaveAsync_WithValidTransaction_ShouldSave()
         {
@@ -54,7 +62,9 @@ namespace EMVCard.Tests
             retrieved.PAN.Should().Be(transaction.PAN);
             retrieved.Status.Should().Be(transaction.Status);
         }
-
+        /// <summary>
+        /// Verifies that saving a null transaction throws <see cref="ArgumentNullException"/>.
+        /// </summary>
         [Fact]
         public async Task SaveAsync_WithNullTransaction_ShouldThrowArgumentNullException()
         {
@@ -66,6 +76,9 @@ namespace EMVCard.Tests
                 .WithParameterName("transaction");
         }
 
+        /// <summary>
+        /// Verifies that updating an existing transaction overwrites the previous data.
+        /// </summary>
         [Fact]
         public async Task SaveAsync_UpdateExisting_ShouldUpdateTransaction()
         {
@@ -87,7 +100,9 @@ namespace EMVCard.Tests
             retrieved.Status.Should().Be("Failed");
             retrieved.ErrorMessage.Should().Be("Card read error");
         }
-
+        /// <summary>
+        /// Verifies that retrieving a transaction by null ID throws <see cref="ArgumentException"/>.
+        /// </summary>
         [Fact]
         public async Task GetByIdAsync_WithNonExistentId_ShouldReturnNull()
         {
@@ -109,6 +124,9 @@ namespace EMVCard.Tests
                 .WithMessage("*Transaction ID cannot be null or empty*");
         }
 
+        /// <summary>
+        /// Verifies that retrieving all transactions from empty storage returns an empty list.
+        /// </summary>
         [Fact]
         public async Task GetAllAsync_WithNoTransactions_ShouldReturnEmptyList()
         {
@@ -120,6 +138,9 @@ namespace EMVCard.Tests
             result.Should().BeEmpty();
         }
 
+        /// <summary>
+        /// Verifies that retrieving all transactions returns all saved transactions.
+        /// </summary>
         [Fact]
         public async Task GetAllAsync_WithMultipleTransactions_ShouldReturnAll()
         {
@@ -149,6 +170,9 @@ namespace EMVCard.Tests
             });
         }
 
+        /// <summary>
+        /// Verifies that filtering by date range returns only matching transactions.
+        /// </summary>
         [Fact]
         public async Task GetByDateRangeAsync_ShouldFilterCorrectly()
         {
@@ -179,6 +203,9 @@ namespace EMVCard.Tests
             result.Select(t => t.PAN).Should().Contain(new[] { "2222", "3333", "4444" });
         }
 
+        /// <summary>
+        /// Verifies that transactions returned by date range are in descending order.
+        /// </summary>
         [Fact]
         public async Task GetByDateRangeAsync_ShouldReturnInDescendingOrder()
         {
@@ -208,6 +235,9 @@ namespace EMVCard.Tests
             result[2].PAN.Should().Be("1111");
         }
 
+        /// <summary>
+        /// Verifies that filtering by PAN returns only matching transactions.
+        /// </summary>
         [Fact]
         public async Task GetByPANAsync_ShouldReturnMatchingTransactions()
         {
@@ -233,6 +263,9 @@ namespace EMVCard.Tests
             result.Should().OnlyContain(t => t.PAN == targetPAN);
         }
 
+        /// <summary>
+        /// Verifies that filtering by null PAN throws <see cref="ArgumentException"/>.
+        /// </summary>
         [Fact]
         public async Task GetByPANAsync_WithNullPAN_ShouldThrowArgumentException()
         {
@@ -244,6 +277,9 @@ namespace EMVCard.Tests
                 .WithMessage("*PAN cannot be null or empty*");
         }
 
+        /// <summary>
+        /// Verifies that deleting an existing transaction removes it from storage.
+        /// </summary>
         [Fact]
         public async Task DeleteAsync_WithExistingTransaction_ShouldDeleteAndReturnTrue()
         {
@@ -260,6 +296,9 @@ namespace EMVCard.Tests
             retrieved.Should().BeNull();
         }
 
+        /// <summary>
+        /// Verifies that deleting a non-existent transaction returns false.
+        /// </summary>
         [Fact]
         public async Task DeleteAsync_WithNonExistentTransaction_ShouldReturnFalse()
         {
@@ -270,6 +309,9 @@ namespace EMVCard.Tests
             result.Should().BeFalse();
         }
 
+        /// <summary>
+        /// Verifies that deleting all transactions removes all and returns the count.
+        /// </summary>
         [Fact]
         public async Task DeleteAllAsync_ShouldDeleteAllAndReturnCount()
         {
@@ -287,7 +329,9 @@ namespace EMVCard.Tests
             var remaining = await _storage.GetAllAsync();
             remaining.Should().BeEmpty();
         }
-
+        /// <summary>
+        /// Verifies that getting the transaction count returns the correct value.
+        /// </summary>
         [Fact]
         public async Task GetCountAsync_ShouldReturnCorrectCount()
         {
@@ -304,6 +348,9 @@ namespace EMVCard.Tests
             count.Should().Be(3);
         }
 
+        /// <summary>
+        /// Verifies that exporting to JSON creates a file with the correct content.
+        /// </summary>
         [Fact]
         public async Task ExportAsync_ToJson_ShouldCreateFile()
         {
@@ -320,6 +367,10 @@ namespace EMVCard.Tests
             content.Should().Contain("4111111111111111");
         }
 
+
+        /// <summary>
+        /// Verifies that exporting to CSV creates a file with the correct content.
+        /// </summary>
         [Fact]
         public async Task ExportAsync_ToCsv_ShouldCreateFile()
         {
@@ -342,6 +393,9 @@ namespace EMVCard.Tests
             content.Should().Contain("Success");
         }
 
+        /// <summary>
+        /// Verifies that exporting to XML creates a file with the correct content.
+        /// </summary>
         [Fact]
         public async Task ExportAsync_ToXml_ShouldCreateFile()
         {
@@ -365,6 +419,9 @@ namespace EMVCard.Tests
             content.Should().Contain("<CardholderName>JOHN DOE</CardholderName>");
         }
 
+        /// <summary>
+        /// Verifies that exporting with a null path throws <see cref="ArgumentException"/>.
+        /// </summary>
         [Fact]
         public async Task ExportAsync_WithNullPath_ShouldThrowArgumentException()
         {
