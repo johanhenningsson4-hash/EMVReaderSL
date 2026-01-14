@@ -10,6 +10,9 @@ namespace EMVCard.Tests
     /// </summary>
     public class CardTransactionTests
     {
+        /// <summary>
+        /// Tests that the CardTransaction constructor initializes all properties with default values.
+        /// </summary>
         [Fact]
         public void Constructor_ShouldInitializeWithDefaultValues()
         {
@@ -26,6 +29,9 @@ namespace EMVCard.Tests
             transaction.ApplicationVersion.Should().Be("2.0.0");
         }
 
+        /// <summary>
+        /// Tests that each CardTransaction instance has a unique TransactionId in GUID format.
+        /// </summary>
         [Fact]
         public void TransactionId_ShouldBeUniqueGuid()
         {
@@ -38,6 +44,9 @@ namespace EMVCard.Tests
             Guid.TryParse(transaction1.TransactionId, out _).Should().BeTrue();
         }
 
+        /// <summary>
+        /// Tests that FromCardData throws ArgumentNullException when cardData is null.
+        /// </summary>
         [Fact]
         public void FromCardData_WithNullCardData_ShouldThrowArgumentNullException()
         {
@@ -49,6 +58,9 @@ namespace EMVCard.Tests
                 .WithParameterName("cardData");
         }
 
+        /// <summary>
+        /// Tests that FromCardData correctly maps all fields from EmvCardData to CardTransaction.
+        /// </summary>
         [Fact]
         public void FromCardData_WithValidData_ShouldMapAllFields()
         {
@@ -76,6 +88,9 @@ namespace EMVCard.Tests
             transaction.TransactionType.Should().Be("Read");
         }
 
+        /// <summary>
+        /// Tests that FromCardData uses empty strings for null fields in EmvCardData.
+        /// </summary>
         [Fact]
         public void FromCardData_WithNullFields_ShouldUseEmptyStrings()
         {
@@ -97,6 +112,9 @@ namespace EMVCard.Tests
             transaction.ReaderName.Should().BeEmpty();
         }
 
+        /// <summary>
+        /// Tests that CreateFailed creates a CardTransaction with status 'Failed' and correct error details.
+        /// </summary>
         [Fact]
         public void CreateFailed_ShouldCreateFailedTransaction()
         {
@@ -114,6 +132,9 @@ namespace EMVCard.Tests
             transaction.ReaderName.Should().Be("ACS ACR122U");
         }
 
+        /// <summary>
+        /// Tests that CreateFailed uses empty strings when parameters are null.
+        /// </summary>
         [Fact]
         public void CreateFailed_WithNullParameters_ShouldUseEmptyStrings()
         {
@@ -126,6 +147,9 @@ namespace EMVCard.Tests
             transaction.Status.Should().Be("Failed");
         }
 
+        /// <summary>
+        /// Tests that GetSummary returns a formatted string containing transaction details.
+        /// </summary>
         [Fact]
         public void GetSummary_ShouldReturnFormattedString()
         {
@@ -146,6 +170,9 @@ namespace EMVCard.Tests
             summary.Should().Contain("4111111111111111"); // Full PAN, not masked
         }
 
+        /// <summary>
+        /// Tests that GetSummary does not mask PANs shorter than 10 digits.
+        /// </summary>
         [Fact]
         public void GetSummary_WithShortPAN_ShouldNotMask()
         {
@@ -163,6 +190,9 @@ namespace EMVCard.Tests
             summary.Should().Contain("123456789"); // Not masked
         }
 
+        /// <summary>
+        /// Tests that GetSummary masks the PAN correctly for various input values.
+        /// </summary>
         [Theory]
         [InlineData("4111111111111111", "4111111111111111")]
         [InlineData("5500000000000004", "5500000000000004")]
@@ -183,6 +213,9 @@ namespace EMVCard.Tests
             summary.Should().Contain(expectedPAN);
         }
 
+        /// <summary>
+        /// Tests that the ProcessingTimeMs property can be set and retrieved.
+        /// </summary>
         [Fact]
         public void ProcessingTimeMs_ShouldBeSettable()
         {
@@ -196,6 +229,9 @@ namespace EMVCard.Tests
             transaction.ProcessingTimeMs.Should().Be(1234);
         }
 
+        /// <summary>
+        /// Tests that all properties of CardTransaction can be set and retrieved.
+        /// </summary>
         [Fact]
         public void AllProperties_ShouldBeSettable()
         {
