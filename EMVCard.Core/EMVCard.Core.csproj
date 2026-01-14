@@ -20,7 +20,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>v2.0.1 - Bugfixes: ArgumentNullException for null FCI, valid PDOL TLV in tests, no duplicate/partial methods. Logging is now configurable. C# 7.3 compatibility. Moq-based tests supported. See RELEASE_NOTES.md for details.</PackageReleaseNotes>
     <Platforms>AnyCPU;x64;x86</Platforms>
-	<GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +30,10 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
