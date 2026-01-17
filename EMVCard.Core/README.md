@@ -6,6 +6,7 @@ This library provides core functionality for EMV card transaction storage and pr
 - Storage interfaces and implementations (JSON and SQLite)
 - Batch and summary operations for high performance
 - .NET Framework 4.7.2 compatibility
+- **New in 2.1.0:** Event handling for card read operations (`CardRead` event)
 
 ## Features
 - Save, retrieve, filter, and export EMV card transactions
@@ -13,22 +14,24 @@ This library provides core functionality for EMV card transaction storage and pr
 - Batch insert with `SaveBatchAsync`
 - Lightweight summary queries with `GetAllSummaryAsync`
 - Designed for integration with Windows Forms and other .NET apps
+- **Event-driven:** Subscribe to `CardRead` to react to card reads in real time
 
-## What's New in v2.0.4
+## What's New in v2.1.0
+- **Event handling:** `CardRead` event for notifying when a card is read and parsed
 - Maintenance and compatibility improvements
-- Updated NuGet version: 2.0.4
+- Updated NuGet version: 2.1.0
 
 ## Usage
 
 Install via NuGet:
 
 ```
-Install-Package EMVCard.Core -Version 2.0.4
+Install-Package EMVCard.Core -Version 2.1.0
 ```
 
 **.NET CLI:**
 ```
-dotnet add package EMVCard.Core --version 2.0.4
+dotnet add package EMVCard.Core --version 2.1.0
 ```
 
 Example:
@@ -44,6 +47,13 @@ await storage.SaveBatchAsync(transactions);
 
 // Get summaries
 var summaries = await storage.GetAllSummaryAsync();
+
+// Subscribe to card read event
+var reader = new EmvCardReader();
+reader.CardRead += (s, e) =>
+{
+    Console.WriteLine($"Card read: {e.CardData.PAN}");
+};
 ```
 
 ## Requirements

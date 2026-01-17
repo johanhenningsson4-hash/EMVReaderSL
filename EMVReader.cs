@@ -67,6 +67,12 @@ namespace EMVCard
             // Wire up logging events
             _cardReader.LogMessage += (s, msg) => displayOut(0, 0, msg);
             _dataParser.LogMessage += (s, msg) => displayOut(0, 0, msg);
+            _cardReader.CardRead += (s, e) =>
+            {
+                // Update UI or process card data
+                MessageBox.Show($"Card read: {e.CardData.PAN}");
+            };
+            
         }
 
         /// <summary>
@@ -286,9 +292,12 @@ namespace EMVCard
             // Update UI
             UpdateUIFromCardData();
 
+            // Raise CardRead event with parsed card data
+            _cardReader.RaiseCardRead(_currentCardData);
+
             // Generate SL Token
             var tokenResult = await _tokenGenerator.GenerateTokenAsync(_currentCardData, _currentCardData.PAN, selectedApp.AID);
-            
+
             // Update UI on UI thread
             SafeUpdateUI(() =>
             {
@@ -588,9 +597,12 @@ namespace EMVCard
                 _dataParser.ExtractFromTrack2(_currentCardData);
                 UpdateUIFromCardData();
 
+                // Raise CardRead event with parsed card data
+                _cardReader.RaiseCardRead(_currentCardData);
+
                 // Generate SL Token
                 var tokenResult = await _tokenGenerator.GenerateTokenAsync(_currentCardData, _currentCardData.PAN, selectedApp.AID);
-                
+
                 // Update UI on UI thread
                 SafeUpdateUI(() =>
                 {

@@ -32,7 +32,6 @@
     <None Include=".git-hooks\pre-commit" />
     <None Include="README.md" Pack="true" PackagePath="\" />
     <None Include="README_ModWinsCard.md" Pack="true" PackagePath="\" />
-    <None Include="MIGRATION_SUMMARY.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\\icon.png" Pack="true" PackagePath="" />

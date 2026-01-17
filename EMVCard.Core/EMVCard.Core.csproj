@@ -6,19 +6,19 @@
     <AssemblyName>EMVCard.Core</AssemblyName>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>EMVCard.Core</PackageId>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
     <Authors>Johan Henningsson</Authors>
     <Company>Johan Henningsson</Company>
     <Product>EMV Card Reader Core</Product>
-    <Description>EMV chip card reading library with support for PSE/PPSE application selection, GPO processing, record reading, TLV parsing, and SL Token generation. Works with contact and contactless EMV cards via PC/SC readers. Updated for 2026 release with improved documentation and copyright. Now supports both 32-bit and 64-bit Windows systems through NfcReaderLib 1.0.3.</Description>
-    <PackageTags>emv;chipcard;pcsc;pse;ppse;gpo;afl;tlv;sl-token;visa;mastercard;32bit;64bit</PackageTags>
+    <Description>EMV chip card reading library with support for PSE/PPSE application selection, GPO processing, record reading, TLV parsing, SL Token generation, and event-driven card read notifications. Works with contact and contactless EMV cards via PC/SC readers. Updated for 2026 release with improved documentation and copyright. Now supports both 32-bit and 64-bit Windows systems through NfcReaderLib 1.0.3.</Description>
+    <PackageTags>emv;chipcard;pcsc;pse;ppse;gpo;afl;tlv;sl-token;visa;mastercard;32bit;64bit;event;cardread</PackageTags>
     <PackageProjectUrl>https://github.com/johanhenningsson4-hash/EMVReaderSL</PackageProjectUrl>
     <RepositoryUrl>https://github.com/johanhenningsson4-hash/EMVReaderSL</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Copyright � Johan Henningsson 2026</Copyright>
+    <Copyright>Copyright © Johan Henningsson 2026</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>v2.0.1 - Bugfixes: ArgumentNullException for null FCI, valid PDOL TLV in tests, no duplicate/partial methods. Logging is now configurable. C# 7.3 compatibility. Moq-based tests supported. See RELEASE_NOTES.md for details.</PackageReleaseNotes>
+    <PackageReleaseNotes>v2.1.0 - Adds CardRead event for event-driven card read notifications. Maintenance and compatibility improvements.</PackageReleaseNotes>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <IsPackable>true</IsPackable>
