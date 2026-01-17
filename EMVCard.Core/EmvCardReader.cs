@@ -137,7 +137,6 @@ namespace EMVCard
                 ReadATR();
 
                 return true;
-                return true;
             }
             else
             {
