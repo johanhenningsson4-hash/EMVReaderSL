@@ -164,35 +164,7 @@
     <None Include=".github\workflows\publish-nuget.yml" />
     <None Include=".github\workflows\release.yml" />
     <None Include="app.config" />
-    <None Include="CARD_POLLING_FEATURE.md" />
-    <None Include="cleanup-docs.ps1" />
-    <None Include="CLEANUP_OPTIMIZED_GUIDE.md" />
-    <None Include="CLEANUP_QUICK_REFERENCE.md" />
-    <None Include="CLEANUP_SUMMARY.md" />
-    <None Include="CLEANUP_UNUSED_FILES_GUIDE.md" />
-    <None Include="CLEARBUFFERS_FIX.md" />
-    <None Include="CODE_OPTIMIZATION_SUMMARY.md" />
-    <None Include="COMBOBOX_SELECTION_FIX.md" />
-    <None Include="DOCUMENTATION_CLEANUP_PLAN.md" />
-    <None Include="FINAL_README_UPDATE_2026.md" />
-    <None Include="GITHUB_RELEASE_COMPLETE.md" />
-    <None Include="ICC_PUBLIC_KEY_PARSER_DOCUMENTATION.md" />
-    <None Include="ISSUER_KEY_EXTRACTION_DOCUMENTATION.md" />
-    <None Include="LICENSE_YEAR_UPDATE_2026.md" />
-    <None Include="LOGGING_DOCUMENTATION.md" />
-    <None Include="NUGET_PACKAGES_CREATED.md" />
-    <None Include="NUGET_PACKAGES_UPDATE_REPORT.md" />
-    <None Include="NUGET_PACKAGES_UPDATE_STATUS_2026.md" />
-    <None Include="NUGET_PACKAGE_ISSUE_RESOLVED.md" />
-    <None Include="NUGET_PUBLISHING_GUIDE.md" />
-    <None Include="NUGET_PUBLISHING_STATUS.md" />
-    <None Include="NUGET_PUBLISHING_SUCCESS_v1.0.1.md" />
-    <None Include="NUGET_RELEASE_v1.0.3_PUBLISHING_GUIDE.md" />
-    <None Include="NUGET_RELEASE_v1.0.3_SUMMARY.md" />
     <None Include="packages.config" />
-    <None Include="PAN_MASKING_FEATURE.md" />
-    <None Include="POLLING_CONNECTION_FIX.md" />
-    <None Include="POLLING_RECONNECTION_FIX.md" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -202,31 +174,14 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="QUICK_RELEASE_GUIDE_v1.0.4.md" />
-    <None Include="README_NUGET_VERSION_UPDATE.md" />
-    <None Include="README_UPDATE_COMPLETE.md" />
-    <None Include="README_UPDATE_ENHANCEMENT_2026.md" />
-    <None Include="README_UPDATE_SUMMARY.md" />
-    <None Include="README_UPDATE_v1.0.3_COMPLETE.md" />
-    <None Include="READY_TO_EXECUTE.md" />
-    <None Include="REFACTORING_DOCUMENTATION.md" />
     <None Include="Release-v2.0.0\RELEASE_NOTES.md" />
-    <None Include="RELEASE_CHECKLIST_v1.0.4.md" />
-    <None Include="RELEASE_CREATION_SUMMARY.md" />
-    <None Include="RELEASE_v1.0.4_PLAN.md" />
-    <None Include="RELEASE_v1.0.4_SUMMARY.md" />
     <None Include="RELEASE_v2.0.0_READY.md" />
-    <None Include="SL_TOKEN_FORMAT_UPDATE.md" />
-    <None Include="SL_TOKEN_INTEGRATION_DOCUMENTATION.md" />
-    <None Include="SOLUTION_SYNC_STATUS.md" />
     <None Include="Storage\SQLiteStorage_README.md" />
-    <None Include="SUB_PROJECTS_NUGET_UPDATE_REPORT_2026.md" />
     <None Include="TRANSACTION_COMPATIBILITY_NOTES.md" />
     <None Include="TRANSACTION_FEATURE_SUMMARY.md" />
     <None Include="TRANSACTION_MANUAL_SETUP.md" />
     <None Include="TRANSACTION_QUICK_START.md" />
     <None Include="TRANSACTION_STORAGE_GUIDE.md" />
-    <None Include="update-version.ps1" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">

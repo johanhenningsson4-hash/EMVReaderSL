@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EMVReaderSL", "EMVReaderSL.csproj", "{36C17DE2-A271-47FC-989A-CA2165BF3639}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EMVReaderJH", "EMVReaderJH.csproj", "{36C17DE2-A271-47FC-989A-CA2165BF3639}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NfcReaderLib", "NfcReaderLib\NfcReaderLib.csproj", "{F259CBFC-0C1F-4C37-962B-3F34D34AD2BB}"
 EndProject

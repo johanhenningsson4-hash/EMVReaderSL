@@ -28,6 +28,19 @@ namespace EMVCard
         private ModWinsCard.SCARD_IO_REQUEST _pioSendRequest;
 
         public event EventHandler<string> LogMessage;
+        
+        /// <summary>
+        /// Raised when a card is successfully read and parsed.
+        /// </summary>
+        public event EventHandler<CardReadEventArgs> CardRead;
+        
+        /// <summary>
+        /// Raises the CardRead event with parsed card data.
+        /// </summary>
+        public void RaiseCardRead(EmvDataParser.EmvCardData cardData)
+        {
+            CardRead?.Invoke(this, new CardReadEventArgs(cardData));
+        }
 
         /// <summary>
         /// Initialize the PC/SC context and enumerate card readers.
@@ -122,6 +135,8 @@ namespace EMVCard
 
                 // Read ATR
                 ReadATR();
+
+                return true;
                 return true;
             }
             else
@@ -382,6 +397,19 @@ namespace EMVCard
         protected virtual void OnLogMessage(string message)
         {
             LogMessage?.Invoke(this, message);
+        }
+    }
+
+    /// <summary>
+    /// Event arguments for the CardRead event, containing parsed EMV card data.
+    /// </summary>
+    public class CardReadEventArgs : EventArgs
+    {
+        public EmvDataParser.EmvCardData CardData { get; }
+
+        public CardReadEventArgs(EmvDataParser.EmvCardData cardData)
+        {
+            CardData = cardData;
         }
     }
 }
